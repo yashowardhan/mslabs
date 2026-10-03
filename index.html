@@ -1,24 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordPress Care Plans &amp; Maintenance | MS Labs Studio</title>
+    <title>WordPress Care &amp; Senior React Development | MS Labs Studio</title>
     <meta name="description"
-        content="Developer-led WordPress care plans, speed fixes and white-label development for small businesses and agencies in the US and Europe. Month to month.">
+        content="Senior WordPress care, custom plugin development and white-label React/Next.js delivery for businesses and digital agencies in the US, UK and Europe.">
     <link rel="canonical" href="https://mslabsstudio.com/">
-    <meta name="theme-color" content="#070E1B">
+    <meta name="theme-color" content="#F2F0EA">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="WordPress Care Plans &amp; Maintenance | MS Labs Studio">
+    <meta property="og:title" content="WordPress Care &amp; Senior React Development | MS Labs Studio">
     <meta property="og:description"
-        content="Your WordPress site, kept fast, secure and working by a senior developer. Month-to-month care plans, one-time fixes and white-label development.">
+        content="Senior WordPress care, custom plugin development and white-label React/Next.js delivery without another full-time hire.">
     <meta property="og:url" content="https://mslabsstudio.com/">
     <meta name="twitter:card" content="summary">
 
     <link rel="icon"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A1628'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='28' font-weight='700' text-anchor='middle' fill='%2338BDF8'%3EMS%3C/text%3E%3C/svg%3E">
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101722'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='28' font-weight='700' text-anchor='middle' fill='%230F766E'%3EMS%3C/text%3E%3C/svg%3E">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,8 +34,8 @@
         "name": "MS Labs Studio",
         "url": "https://mslabsstudio.com/",
         "email": "contact@mslabsstudio.com",
-        "description": "Developer-led WordPress care plans, speed fixes and white-label React and WordPress development for small businesses and agencies in the US and Europe.",
-        "areaServed": ["United States", "Europe"],
+        "description": "Senior WordPress care, custom plugin development and white-label React and WordPress development for businesses and digital agencies in the US, UK and Europe.",
+        "areaServed": ["United States", "United Kingdom", "Europe", "Australia"],
         "priceRange": "$99-$399 per month",
         "knowsAbout": ["WordPress", "WordPress maintenance", "React", "Next.js", "Core Web Vitals"]
     }
@@ -106,16 +107,16 @@
 
     <style>
         :root {
-            --ink: #070E1B;
-            --navy: #0A1628;
-            --panel: #0F203B;
-            --line: #22344F;
-            --text: #E8EEF7;
-            --muted: #A3B4CC;
-            --signal: #38BDF8;
-            --signal-hover: #7DD3FC;
-            --amber: #F5B83D;
-            --on-signal: #04121F;
+            --ink: #101722;
+            --navy: #F2F0EA;
+            --panel: #FFFFFF;
+            --line: #D8D5CC;
+            --text: #18202C;
+            --muted: #5E6672;
+            --signal: #0F766E;
+            --signal-hover: #14A39A;
+            --amber: #D97757;
+            --on-signal: #FFFFFF;
         }
 
         *,
@@ -442,7 +443,7 @@
         .meter {
             height: 6px;
             margin-top: 0.45rem;
-            background: #17294A;
+            background: #E7E4DC;
             border-radius: 3px;
             overflow: hidden;
         }
@@ -494,7 +495,7 @@
             margin-bottom: 0.9rem;
             padding: 0.2rem 0.7rem;
             background: var(--amber);
-            color: #241800;
+            color: #FFFFFF;
             border-radius: 999px;
             font-size: 0.85rem;
             font-weight: 700;
@@ -971,8 +972,116 @@
             list-style: none;
         }
 
+        /* Conversion additions */
+        .eyebrow {
+            margin: 0 0 0.8rem;
+            color: var(--signal);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .agency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .agency-copy {
+            padding: 1.75rem;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .agency-copy h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .agency-copy .dash li {
+            margin-bottom: 0.45rem;
+        }
+
+        .agency-cta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            padding: 1.75rem 2rem;
+            border: 1px solid var(--signal);
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.04);
+        }
+
+        .agency-cta h3 {
+            margin-bottom: 0.35rem;
+        }
+
+        .agency-cta p {
+            color: var(--muted);
+        }
+
+        .about-founder {
+            max-width: 64rem;
+        }
+
+
+        /* 2026 visual refresh: warm editorial base + technical teal */
+        body { background: #F7F5EF; color: #18202C; }
+        .band-alt { background: #F2F0EA; }
+        .site-header { background: rgba(247,245,239,0.94); border-bottom-color: #D8D5CC; }
+        .logo, .logo:hover { color: #101722; }
+        .nav-links a:not(.btn):hover { color: #101722; }
+        .nav-toggle { color: #18202C; border-color: #D8D5CC; }
+        .hero {
+            background-color: #101722;
+            color: #F8F7F2;
+            background-image: radial-gradient(circle at 82% 20%, rgba(15,118,110,.24), transparent 28%),
+                radial-gradient(circle at 12% 88%, rgba(217,119,87,.15), transparent 24%),
+                linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+            background-size: auto, auto, 56px 56px, 56px 56px;
+        }
+        .hero-lead, .proof li, .section-head p, .plan-for, .price small, .plans-note, .contact-info p, .privacy, .agency-cta p, .report-note, .faq details p { color: #66707D; }
+        .hero .hero-lead, .hero .proof li { color: #C8CED6; }
+        .hero .proof strong { color: #F8F7F2; }
+        .hero .btn-ghost { border-color: #53606F; color: #F8F7F2; }
+        .hero .btn-ghost:hover { border-color: #14A39A; color: #F8F7F2; }
+        .report, .plan, .agency-copy, .contact-form { background: #FFFFFF; border-color: #D8D5CC; box-shadow: 0 18px 45px rgba(16,23,34,.08); }
+        .report { color: #18202C; }
+        .meter { background: #E7E4DC; }
+        .plan-popular { border-color: #D97757; }
+        .badge { background: #D97757; color: #FFFFFF; }
+        .work-item { border-color: #D8D5CC; }
+        .stack li { background: #EDEBE5; color: #4D5662; }
+        .outcomes strong { color: #0F766E; }
+        .agency-cta { border-color: #0F766E; background: rgba(15,118,110,.055); }
+        .proof-band { background: #101722; color: #F8F7F2; }
+        .proof-band .section-head p { color: #C8CED6; }
+        .proof-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:2rem 0 1.5rem; }
+        .proof-card { padding:1.4rem; border:1px solid #344252; border-radius:12px; background:#151E2A; }
+        .proof-card strong { display:block; color:#F8F7F2; font-size:1.25rem; margin-bottom:.35rem; }
+        .proof-card span { display:block; color:#AEB7C3; font-size:.92rem; line-height:1.45; }
+        .proof-band .btn-ghost { border-color:#53606F; color:#F8F7F2; }
+        .field input, .field select, .field textarea { background:#F7F5EF; color:#18202C; border-color:#D8D5CC; }
+        .site-footer { border-top-color:#D8D5CC; }
+        @media (max-width: 920px) { .proof-cards { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width: 600px) { .proof-cards { grid-template-columns:1fr; } }
+
         /* Responsive */
         @media (max-width: 920px) {
+            .agency-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .agency-cta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
             .hero-grid,
             .split,
             .contact-grid {
@@ -1102,11 +1211,11 @@
             <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false"
                 aria-controls="nav-links">Menu</button>
             <ul class="nav-links" id="nav-links">
-                <li><a href="#plans">Care plans</a></li>
-                <li><a href="#fixes">One-time fixes</a></li>
+                <li><a href="#plans">WordPress Care</a></li>
+                <li><a href="#services">Development</a></li>
                 <li><a href="#work">Work</a></li>
-                <li><a href="#agencies">For agencies</a></li>
-                <li><a href="#faq">FAQ</a></li>
+                <li><a href="agency-partner.html">For agencies</a></li>
+                <li><a href="#about">About</a></li>
                 <li><a class="btn btn-primary" href="#contact" data-interest="check">Free site check</a></li>
             </ul>
         </div>
@@ -1117,51 +1226,45 @@
         <section class="hero" id="top">
             <div class="container hero-grid">
                 <div>
-                    <h1>Your WordPress site, kept fast, secure and working by a senior developer.</h1>
+                    <p class="eyebrow">Senior engineering · WordPress · React / Next.js</p>
+                    <h1>Senior web development without another full-time hire.</h1>
                     <p class="hero-lead">
-                        MS Labs looks after WordPress sites for small businesses and agencies in the US and Europe:
-                        updates, daily backups, speed and security checks, and a developer who answers when something
-                        breaks.
+                        MS Labs helps businesses keep WordPress sites healthy and helps digital agencies deliver
+                        WordPress and React projects when their team is at capacity. You work directly with a senior
+                        developer — not a sales team or a rotating pool of freelancers.
                     </p>
                     <div class="hero-actions">
                         <a class="btn btn-primary" href="#contact" data-interest="check">Get a free site check</a>
-                        <a class="btn btn-ghost" href="#plans">See care plans</a>
+                        <a class="btn btn-ghost" href="#agencies" data-interest="agency">For agencies →</a>
                     </div>
                     <ul class="proof">
-                        <li><strong>11+ years</strong>in frontend and WordPress</li>
-                        <li><strong>90+ PageSpeed</strong>on enterprise sites</li>
-                        <li><strong>Month to month</strong>no long contracts</li>
+                        <li><strong>11+ years</strong>senior web engineering</li>
+                        <li><strong>eBay · Walmart · FlyDubai</strong>enterprise experience</li>
+                        <li><strong>1 senior developer</strong>direct communication</li>
                     </ul>
                 </div>
 
                 <aside class="report" aria-labelledby="report-title">
                     <div class="report-head">
-                        <h2 id="report-title">Monthly health summary</h2>
-                        <span class="tag-sample">Sample</span>
+                        <h2 id="report-title">What working with MS Labs looks like</h2>
+                        <span class="tag-sample">Direct</span>
                     </div>
                     <div class="report-row">
-                        <div class="report-line"><span>Updates applied</span><span>14 plugins, 1 core</span></div>
+                        <div class="report-line"><span>WordPress care</span><span>$99–$399/mo</span></div>
                     </div>
                     <div class="report-row">
-                        <div class="report-line"><span>Backups verified</span><span>30 of 30 days</span></div>
-                        <div class="meter" aria-hidden="true"><span style="--w: 100%"></span></div>
+                        <div class="report-line"><span>One-time engineering</span><span>From $149</span></div>
                     </div>
                     <div class="report-row">
-                        <div class="report-line"><span>Uptime</span><span>99.98%</span></div>
-                        <div class="meter" aria-hidden="true"><span style="--w: 99.98%"></span></div>
+                        <div class="report-line"><span>Agency delivery</span><span>White-label</span></div>
                     </div>
                     <div class="report-row">
-                        <div class="report-line"><span>Mobile speed score</span><span>94</span></div>
-                        <div class="meter" aria-hidden="true"><span style="--w: 94%"></span></div>
+                        <div class="report-line"><span>Response</span><span>Within 1 business day</span></div>
                     </div>
                     <div class="report-row">
-                        <div class="report-line"><span>Security scan</span><span>No issues</span></div>
+                        <div class="report-line"><span>Engagements</span><span>Month-to-month</span></div>
                     </div>
-                    <div class="report-row">
-                        <div class="report-line"><span>Developer time used</span><span>1.5 of 2 hrs</span></div>
-                        <div class="meter" aria-hidden="true"><span style="--w: 75%"></span></div>
-                    </div>
-                    <p class="report-note">A sample of the summary sent each month. Figures are illustrative.</p>
+                    <p class="report-note">Small enough for direct access. Senior enough for production-critical work.</p>
                 </aside>
             </div>
         </section>
@@ -1170,9 +1273,9 @@
         <section class="band band-alt" id="plans">
             <div class="container">
                 <div class="section-head">
-                    <h2>WordPress care plans</h2>
-                    <p>A developer on call, not just an automated checklist. Plans are month to month, and you can
-                        cancel any time.</p>
+                    <p class="eyebrow">For businesses</p>
+                    <h2>Keep your WordPress site healthy without hiring a developer.</h2>
+                    <p>A developer on call, not just an automated checklist. Updates, backups, monitoring, performance and small fixes — handled directly by a senior developer.</p>
                 </div>
 
                 <div class="plans">
@@ -1283,8 +1386,9 @@
         <section class="band band-alt" id="services">
             <div class="container">
                 <div class="section-head">
-                    <h2>Custom development</h2>
-                    <p>Bigger projects, led by the same senior developer, with enterprise-level quality.</p>
+                    <p class="eyebrow">For businesses &amp; agencies</p>
+                    <h2>When the job needs a real developer.</h2>
+                    <p>From a custom WordPress plugin to a React application or performance rescue, you get senior engineering without agency layers.</p>
                 </div>
 
                 <div class="cols3">
@@ -1421,30 +1525,65 @@
             </div>
         </section>
 
+        <!-- Proof -->
+        <section class="band proof-band">
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">Proof without the marketing fluff</p>
+                    <h2>Senior work. Publicly visible. Carefully presented.</h2>
+                    <p>Much of my work has been delivered inside large organisations or through white-label partners, so I do not publish private client quotes without permission. Instead, MS Labs shows proof through named experience where appropriate, concrete case studies, technical depth and public engineering work.</p>
+                </div>
+                <div class="proof-cards">
+                    <div class="proof-card"><strong>11+ years</strong><span>Senior frontend engineering experience</span></div>
+                    <div class="proof-card"><strong>Enterprise</strong><span>e-commerce, retail, aviation &amp; education</span></div>
+                    <div class="proof-card"><strong>Direct</strong><span>You work with the senior engineer doing the work</span></div>
+                    <div class="proof-card"><strong>LinkedIn</strong><span>Engineering insights and architecture notes</span></div>
+                </div>
+                <a class="btn btn-ghost" href="https://www.linkedin.com/company/ms-labs-studio/" target="_blank" rel="noopener">See MS Labs on LinkedIn →</a>
+            </div>
+        </section>
+
         <!-- Agencies -->
         <section class="band band-alt" id="agencies">
-            <div class="container split">
-                <div>
-                    <h2>A white-label developer for your agency</h2>
-                    <p>Overflow capacity from a senior React and WordPress developer, delivered under your brand. No
-                        account managers and no unnecessary meetings.</p>
-                    <ul class="dash">
-                        <li>Prepaid development hours in blocks of 10, 20 or 40</li>
-                        <li>Ongoing care for your clients' sites, white-labelled if you prefer</li>
-                        <li>Custom plugins, headless WordPress and performance work</li>
-                    </ul>
-                    <div class="button-row">
-                        <a class="btn btn-primary" href="#contact" data-booking data-interest="agency">Book a 15-minute
-                            call</a>
-                        <a class="btn btn-ghost" href="#contact" data-interest="agency"
-                            data-note="Hour packs for my agency">Ask about hour packs</a>
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">For digital agencies</p>
+                    <h2>Your senior development partner when your team is at capacity.</h2>
+                    <p>You keep the client relationship. MS Labs handles the engineering — under your brand, with your workflow and without unnecessary account-management layers.</p>
+                </div>
+
+                <div class="agency-grid">
+                    <div class="agency-copy">
+                        <h3>Bring us in when…</h3>
+                        <ul class="dash">
+                            <li>Your agency won a WordPress project but your developers are busy</li>
+                            <li>A client needs a custom plugin or API integration</li>
+                            <li>You need React / Next.js expertise for a project</li>
+                            <li>You inherited a fragile WordPress or frontend codebase</li>
+                            <li>You need ongoing care for client sites without hiring internally</li>
+                        </ul>
+                    </div>
+                    <div class="agency-copy">
+                        <h3>How we work</h3>
+                        <ul class="dash">
+                            <li><strong>White-label friendly</strong> — you own the client relationship</li>
+                            <li><strong>NDA &amp; confidentiality</strong> available for agency engagements</li>
+                            <li><strong>Your workflow</strong> — GitHub, GitLab, Jira, Linear, Slack and more</li>
+                            <li><strong>Fixed scope or ongoing capacity</strong> depending on the project</li>
+                            <li><strong>Direct senior engineering</strong> — no handoff to a junior team</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="packs">
-                    <div class="pack"><strong>10</strong><span>hours</span></div>
-                    <div class="pack"><strong>20</strong><span>hours</span></div>
-                    <div class="pack"><strong>40</strong><span>hours</span></div>
-                    <p class="packs-note">Prepaid blocks, used as you need them. Pricing on request.</p>
+
+                <div class="agency-cta">
+                    <div>
+                        <h3>Have an overflow project?</h3>
+                        <p>Send the brief. I’ll tell you where MS Labs can help and what the next step would look like.</p>
+                    </div>
+                    <div class="button-row">
+                        <a class="btn btn-primary" href="agency-partner.html">Explore agency partnership</a>
+                        <a class="btn btn-ghost" href="#contact" data-interest="agency" data-note="Agency development capacity">Ask about ongoing capacity</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1452,18 +1591,15 @@
         <!-- About -->
         <section class="band" id="about">
             <div class="container">
-                <div class="about">
-                    <!-- To use a photo, replace the avatar div with:
-                         <img src="your-photo.jpg" alt="Yash, founder of MS Labs Studio" width="96" height="96"
-                              style="border-radius:50%;object-fit:cover"> -->
+                <div class="about about-founder">
                     <div class="avatar" aria-hidden="true">Y</div>
                     <div>
-                        <h2>Hi, I'm Yash.</h2>
-                        <p>I'm the developer behind MS Labs. For 11+ years I've built and maintained web applications
-                            for large companies, and I now bring the same care to smaller sites that need dependable
-                            upkeep.</p>
-                        <p>When you message MS Labs, you're writing to me, and I'm the one who fixes things.</p>
-                        <p><a href="#" data-linkedin hidden target="_blank" rel="noopener">Connect on LinkedIn</a></p>
+                        <p class="eyebrow">The person behind MS Labs</p>
+                        <h2>Hi, I’m Yash.</h2>
+                        <p>I’m a senior frontend engineer with 11+ years of experience building and maintaining web applications for large organisations, including work across e-commerce, retail, aviation and education.</p>
+                        <p>I started MS Labs to bring that same senior engineering discipline to businesses and digital agencies that need reliable technical delivery without adding another full-time hire.</p>
+                        <p><strong>When you contact MS Labs, you talk directly to me.</strong></p>
+                        <p><a href="https://www.linkedin.com/company/ms-labs-studio/" data-linkedin target="_blank" rel="noopener">Follow MS Labs on LinkedIn →</a></p>
                     </div>
                 </div>
             </div>
@@ -1473,6 +1609,7 @@
         <section class="band band-alt" id="faq">
             <div class="container">
                 <div class="section-head">
+                    <p class="eyebrow">Before you start</p>
                     <h2>Questions</h2>
                 </div>
 
@@ -1508,6 +1645,14 @@
                             clients' sites. Prepaid hour packs are available.</p>
                     </details>
                     <details>
+                        <summary>How quickly will you reply?</summary>
+                        <p>Every enquiry receives a response within 1 business day. Care plans have the response times shown on their plan, with same-day response on working days for Care Pro.</p>
+                    </details>
+                    <details>
+                        <summary>Can you sign an NDA?</summary>
+                        <p>Yes. NDA and confidentiality arrangements can be put in place for agency and project engagements before work begins.</p>
+                    </details>
+                    <details>
                         <summary>Do you support WooCommerce stores?</summary>
                         <p>Yes. Care Pro includes WooCommerce and custom plugin monitoring, which suits stores where
                             downtime costs sales.</p>
@@ -1520,13 +1665,13 @@
         <section class="band" id="contact">
             <div class="container contact-grid">
                 <div class="contact-info">
-                    <h2>Get a free site check</h2>
-                    <p>Send your website address and I'll reply with three specific findings and a suggested fix for
-                        each. No obligation.</p>
+                    <p class="eyebrow">Start with a small step</p>
+                    <h2>Let’s see if MS Labs can help.</h2>
+                    <p>For a WordPress site, send the URL and I’ll reply with three specific findings. For an agency or development project, send the brief and I’ll reply within 1 business day.</p>
                     <ul class="contact-list">
                         <li>Email: <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a></li>
                     </ul>
-                    <a class="btn btn-ghost" href="#contact" data-booking>Book a 15-minute call</a>
+                    <a class="btn btn-ghost" href="#contact" data-booking>Book a 20-minute call</a>
                 </div>
 
                 <form class="contact-form" id="contact-form" novalidate>
@@ -1562,7 +1707,7 @@
                         <label for="company">Company (leave empty)</label>
                         <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
                     </div>
-                    <button class="btn btn-primary" type="submit">Send message</button>
+                    <button class="btn btn-primary" type="submit">Send enquiry</button>
                     <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
                     <p class="privacy">Your details are used only to reply to your enquiry.</p>
                 </form>
@@ -1576,7 +1721,7 @@
             <ul class="footer-links">
                 <li><a href="#plans">Care plans</a></li>
                 <li><a href="#work">Work</a></li>
-                <li><a href="#agencies">For agencies</a></li>
+                <li><a href="agency-partner.html">For agencies</a></li>
                 <li><a href="#faq">FAQ</a></li>
             </ul>
         </div>
@@ -1590,7 +1735,7 @@
             var CONFIG = {
                 email: 'contact@mslabsstudio.com',
                 bookingUrl: '',      // e.g. 'https://cal.com/your-name/15min'. Leave empty to send people to the form.
-                linkedinUrl: '',     // e.g. 'https://www.linkedin.com/company/your-page'. Leave empty to hide the link.
+                linkedinUrl: 'https://www.linkedin.com/company/ms-labs-studio/',     // e.g. 'https://www.linkedin.com/company/your-page'. Leave empty to hide the link.
                 formEndpoint: ''     // e.g. a Formspree URL 'https://formspree.io/f/xxxx'. Leave empty to open the visitor's email app.
             };
 
