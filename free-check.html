@@ -3,100 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Site Check — MS Labs Studio</title>
-  <!-- Tailwind CDN for quick zero-config styling -->
+  <title>Engineering Site Health Diagnostic — MS Labs Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-zinc-50 text-zinc-900 font-sans antialiased min-h-screen py-12 px-4">
+<body class="bg-zinc-900 text-zinc-100 font-sans antialiased min-h-screen py-10 px-4">
 
-  <!-- Audit Widget Container -->
-  <main class="max-w-2xl mx-auto bg-white border border-zinc-200 rounded-xl p-6 sm:p-8 shadow-sm">
+  <main class="max-w-4xl mx-auto bg-zinc-950 border border-zinc-800 rounded-2xl p-6 sm:p-10 shadow-2xl">
     
     <!-- Header -->
-    <div class="mb-6">
-      <div class="inline-flex items-center gap-2 px-2.5 py-1 bg-zinc-100 border border-zinc-200 rounded-full text-xs font-medium text-zinc-600 mb-3">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        Instant Diagnostic
+    <div class="mb-8 border-b border-zinc-800 pb-6">
+      <div class="flex items-center justify-between gap-4 mb-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-700/60 rounded-full text-xs font-mono text-zinc-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          MS LABS // DIAGNOSTIC ENGINE
+        </div>
+        <span class="text-xs text-zinc-500 font-mono">Parallel Audit v2.1</span>
       </div>
-      <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">Free Site Speed & Accessibility Scan</h1>
-      <p class="text-sm text-zinc-500 mt-1">Get instant performance metrics and WCAG compliance feedback powered by Google Lighthouse.</p>
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Full-Stack Site & Health Inspector</h1>
+      <p class="text-sm text-zinc-400 mt-1">Multi-device Core Web Vitals, payload analysis, and DNS email security checks.</p>
     </div>
 
     <!-- URL Input Form -->
-    <form id="audit-form" class="flex flex-col sm:flex-row gap-3 mb-6">
+    <form id="audit-form" class="flex flex-col sm:flex-row gap-3 mb-8">
       <input 
         type="url" 
         id="site-url" 
         placeholder="https://yourwebsite.com" 
         required 
-        class="flex-1 px-4 py-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:bg-white transition-all"
+        class="flex-1 px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400 transition-all font-mono"
       />
       <button 
         type="submit" 
         id="audit-btn" 
-        class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+        class="px-6 py-3 bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap"
       >
-        <span>Run Scan</span>
+        <span>Run Deep Diagnostic</span>
       </button>
     </form>
 
     <!-- Loading State -->
-    <div id="audit-status" class="hidden p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-sm text-zinc-600 mb-6 flex items-center gap-3">
-      <svg class="animate-spin h-4 w-4 text-zinc-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <div id="audit-status" class="hidden p-6 bg-zinc-900/80 border border-zinc-800 rounded-xl text-sm text-zinc-300 mb-8 flex items-center gap-4">
+      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <span>Analyzing performance and accessibility (~10 seconds)...</span>
+      <div>
+        <p class="font-medium text-white" id="status-text">Initializing parallel audits...</p>
+        <p class="text-xs text-zinc-500 mt-0.5">Evaluating Mobile, Desktop Lighthouse, and Cloudflare DNS records (~10s)</p>
+      </div>
     </div>
 
     <!-- Results Dashboard -->
-    <div id="audit-results" class="hidden space-y-6">
+    <div id="audit-results" class="hidden space-y-8">
       
-      <!-- Scores Grid -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-center">
-          <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Performance</span>
-          <div id="perf-score" class="text-3xl font-bold text-zinc-900 my-1">--</div>
-          <span id="perf-badge" class="inline-block px-2 py-0.5 text-xs font-medium rounded">Pending</span>
-        </div>
-        
-        <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-center">
-          <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Accessibility</span>
-          <div id="a11y-score" class="text-3xl font-bold text-zinc-900 my-1">--</div>
-          <span id="a11y-badge" class="inline-block px-2 py-0.5 text-xs font-medium rounded">Pending</span>
+      <!-- 1. Mobile vs Desktop Side-by-Side -->
+      <div>
+        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">1. Multi-Device Performance</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Mobile Card -->
+          <div class="p-5 bg-zinc-900 border border-zinc-800 rounded-xl">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">📱 Mobile Strategy</span>
+              <span id="mobile-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="mobile-score" class="text-4xl font-bold text-white">--</span>
+              <span class="text-xs text-zinc-500">/ 100</span>
+            </div>
+          </div>
+
+          <!-- Desktop Card -->
+          <div class="p-5 bg-zinc-900 border border-zinc-800 rounded-xl">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">💻 Desktop Strategy</span>
+              <span id="desktop-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="desktop-score" class="text-4xl font-bold text-white">--</span>
+              <span class="text-xs text-zinc-500">/ 100</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Key Issues -->
+      <!-- 2. Core Web Vitals Breakdown (Mobile Lab Metrics) -->
       <div>
-        <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Key Issues Identified</h3>
+        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">2. Core Web Vitals (Mobile Lab)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+            <span class="text-[10px] text-zinc-500 block uppercase">LCP (Largest Paint)</span>
+            <span id="cwv-lcp" class="text-base font-bold text-white mt-1 block">--</span>
+          </div>
+          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+            <span class="text-[10px] text-zinc-500 block uppercase">TBT (Blocking Time)</span>
+            <span id="cwv-tbt" class="text-base font-bold text-white mt-1 block">--</span>
+          </div>
+          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+            <span class="text-[10px] text-zinc-500 block uppercase">CLS (Layout Shift)</span>
+            <span id="cwv-cls" class="text-base font-bold text-white mt-1 block">--</span>
+          </div>
+          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+            <span class="text-[10px] text-zinc-500 block uppercase">FCP (First Paint)</span>
+            <span id="cwv-fcp" class="text-base font-bold text-white mt-1 block">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Infrastructure & Security Checks (Cloudflare DoH) -->
+      <div>
+        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">3. Domain Security & Deliverability</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-4 bg-zinc-900 border border-zinc-800 rounded-lg flex justify-between items-center">
+            <div>
+              <p class="text-xs font-medium text-zinc-200">SPF DNS Record</p>
+              <p class="text-[11px] text-zinc-500">Prevents email spoofing on primary domain</p>
+            </div>
+            <span id="dns-spf" class="px-2.5 py-1 text-xs font-mono font-medium rounded">Checking...</span>
+          </div>
+          <div class="p-4 bg-zinc-900 border border-zinc-800 rounded-lg flex justify-between items-center">
+            <div>
+              <p class="text-xs font-medium text-zinc-200">DMARC Policy</p>
+              <p class="text-[11px] text-zinc-500">Protects domain against inbox placement blocks</p>
+            </div>
+            <span id="dns-dmarc" class="px-2.5 py-1 text-xs font-mono font-medium rounded">Checking...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Estimated Waste & Opportunities -->
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">4. Code & Payload Waste Analysis</h2>
+          <span id="total-savings" class="text-xs font-mono text-amber-400 font-semibold">--</span>
+        </div>
         <ul id="issues-list" class="space-y-2"></ul>
       </div>
 
-      <!-- Lead Capture Form (Web3Forms) -->
-      <div class="pt-6 border-t border-dashed border-zinc-200 bg-zinc-50/50 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-xl">
-        <div class="text-center mb-4">
-          <h4 class="text-sm font-semibold text-zinc-900">Want the prioritized fix breakdown?</h4>
-          <p class="text-xs text-zinc-500 mt-0.5">Enter your email and Yash will send three specific recommendations within 1 business day.</p>
+      <!-- Lead Capture Form -->
+      <div class="pt-6 border-t border-zinc-800 bg-zinc-900/60 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-10 rounded-b-2xl border-t border-zinc-800">
+        <div class="text-center mb-5 max-w-md mx-auto">
+          <h3 class="text-base font-semibold text-white">Need a Senior Developer to resolve these issues?</h3>
+          <p class="text-xs text-zinc-400 mt-1">Get an engineering proposal with exact time estimates and fixed project scope within 24 hours.</p>
         </div>
 
-        <form action="https://api.web3forms.com/submit" method="POST" class="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+        <form action="https://api.web3forms.com/submit" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
           <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
           <input type="hidden" name="scanned_url" id="hidden-scanned-url" value="" />
-          <input type="hidden" name="scores" id="hidden-scores" value="" />
+          <input type="hidden" name="summary_data" id="hidden-summary-data" value="" />
           
           <input 
             type="email" 
             name="email" 
-            placeholder="name@company.com" 
+            placeholder="developer@company.com" 
             required 
-            class="flex-1 px-3.5 py-2 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            class="flex-1 px-4 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white font-mono"
           />
           <button 
             type="submit" 
-            class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+            class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-semibold rounded-xl transition-all whitespace-nowrap"
           >
-            Get Fix Plan
+            Request Audit Plan
           </button>
         </form>
       </div>
@@ -104,104 +170,159 @@
     </div>
   </main>
 
-<script>
-  // Paste your free Google API key here
-  const GOOGLE_API_KEY = "AIzaSyBotG4NfMjX_UidU-VxDeyS_znwkkpVorw";
+  <script>
+    const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY_HERE";
 
-  function getScoreBadge(score) {
-    if (score >= 90) return { label: 'Good', class: 'bg-emerald-100 text-emerald-800' };
-    if (score >= 50) return { label: 'Needs Work', class: 'bg-amber-100 text-amber-800' };
-    return { label: 'Poor', class: 'bg-rose-100 text-rose-800' };
-  }
+    function getBadgeStyle(score) {
+      if (score >= 90) return { label: 'Good', class: 'bg-emerald-950 text-emerald-400 border border-emerald-800' };
+      if (score >= 50) return { label: 'Needs Work', class: 'bg-amber-950 text-amber-400 border border-amber-800' };
+      return { label: 'Poor', class: 'bg-rose-950 text-rose-400 border border-rose-800' };
+    }
 
-  document.getElementById('audit-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const targetUrl = document.getElementById('site-url').value;
-    const statusDiv = document.getElementById('audit-status');
-    const resultsDiv = document.getElementById('audit-results');
-    const btn = document.getElementById('audit-btn');
+    // Cloudflare DNS over HTTPS API for zero-server SPF/DMARC checks
+    async function checkSecurityDns(domain) {
+      try {
+        const cleanDomain = new URL(domain).hostname.replace(/^www\./, '');
+        
+        const spfReq = fetch(`https://cloudflare-dns.com/dns-query?name=${cleanDomain}&type=TXT`, {
+          headers: { 'accept': 'application/dns-json' }
+        }).then(r => r.json());
 
-    statusDiv.classList.remove('hidden');
-    statusDiv.innerHTML = `
-      <svg class="animate-spin h-4 w-4 text-zinc-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <span>Analyzing performance and accessibility (~10-15 seconds)...</span>
-    `;
-    resultsDiv.classList.add('hidden');
-    btn.disabled = true;
+        const dmarcReq = fetch(`https://cloudflare-dns.com/dns-query?name=_dmarc.${cleanDomain}&type=TXT`, {
+          headers: { 'accept': 'application/dns-json' }
+        }).then(r => r.json());
 
-    try {
-      // Endpoint with API key and lowercase categories
-      let apiUrl = `https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=performance&category=accessibility&strategy=mobile`;
-      
+        const [spfRes, dmarcRes] = await Promise.all([spfReq, dmarcReq]);
+
+        const hasSpf = spfRes.Answer?.some(a => a.data?.includes('v=spf1')) || false;
+        const hasDmarc = dmarcRes.Answer?.some(a => a.data?.includes('v=DMARC1')) || false;
+
+        return { spf: hasSpf, dmarc: hasDmarc };
+      } catch (e) {
+        return { spf: false, dmarc: false };
+      }
+    }
+
+    async function fetchPsi(url, strategy) {
+      let apiUrl = `https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=performance&category=accessibility&strategy=${strategy}`;
       if (GOOGLE_API_KEY && GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY_HERE") {
         apiUrl += `&key=${GOOGLE_API_KEY}`;
       }
-
       const res = await fetch(apiUrl);
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error?.message || `API error ${res.status}`);
-      }
-
-      const lighthouse = data.lighthouseResult;
-      const perfScore = Math.round((lighthouse.categories.performance?.score || 0) * 100);
-      const a11yScore = Math.round((lighthouse.categories.accessibility?.score || 0) * 100);
-
-      // Render Performance
-      document.getElementById('perf-score').innerText = `${perfScore}/100`;
-      const perfBadge = getScoreBadge(perfScore);
-      const perfBadgeEl = document.getElementById('perf-badge');
-      perfBadgeEl.innerText = perfBadge.label;
-      perfBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${perfBadge.class}`;
-
-      // Render Accessibility
-      document.getElementById('a11y-score').innerText = `${a11yScore}/100`;
-      const a11yBadge = getScoreBadge(a11yScore);
-      const a11yBadgeEl = document.getElementById('a11y-badge');
-      a11yBadgeEl.innerText = a11yBadge.label;
-      a11yBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${a11yBadge.class}`;
-
-      // Render Issues
-      const issuesList = document.getElementById('issues-list');
-      issuesList.innerHTML = '';
-      
-      const keyAudits = ['render-blocking-resources', 'unused-javascript', 'color-contrast', 'image-alt'];
-      let foundCount = 0;
-
-      for (const key of keyAudits) {
-        const audit = lighthouse.audits[key];
-        if (audit && audit.score !== null && audit.score < 0.9) {
-          const li = document.createElement('li');
-          li.className = 'p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 flex flex-col gap-1';
-          li.innerHTML = `<span class="font-medium text-zinc-900">${audit.title}</span><span class="text-zinc-500">${audit.displayValue || audit.description}</span>`;
-          issuesList.appendChild(li);
-          foundCount++;
-          if (foundCount >= 3) break;
-        }
-      }
-
-      if (foundCount === 0) {
-        issuesList.innerHTML = '<li class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-600">No critical headline performance issues detected.</li>';
-      }
-
-      // Hidden Inputs
-      document.getElementById('hidden-scanned-url').value = targetUrl;
-      document.getElementById('hidden-scores').value = `Perf: ${perfScore}/100, A11y: ${a11yScore}/100`;
-
-      statusDiv.classList.add('hidden');
-      resultsDiv.classList.remove('hidden');
-    } catch (err) {
-      statusDiv.innerHTML = `<span class="text-rose-600 font-medium">Scan failed: ${err.message}</span>`;
-      console.error('PageSpeed API Error:', err);
-    } finally {
-      btn.disabled = false;
+      if (!res.ok) throw new Error(`${strategy} PSI audit failed`);
+      return res.json();
     }
-  });
-</script>
+
+    document.getElementById('audit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const targetUrl = document.getElementById('site-url').value;
+      const statusDiv = document.getElementById('audit-status');
+      const resultsDiv = document.getElementById('audit-results');
+      const btn = document.getElementById('audit-btn');
+
+      statusDiv.classList.remove('hidden');
+      resultsDiv.classList.add('hidden');
+      btn.disabled = true;
+
+      try {
+        // Execute Mobile PSI, Desktop PSI, and DNS Security in Parallel
+        const [mobileData, desktopData, dnsData] = await Promise.all([
+          fetchPsi(targetUrl, 'mobile'),
+          fetchPsi(targetUrl, 'desktop'),
+          checkSecurityDns(targetUrl)
+        ]);
+
+        const mobLh = mobileData.lighthouseResult;
+        const deskLh = desktopData.lighthouseResult;
+
+        const mobPerf = Math.round((mobLh.categories.performance?.score || 0) * 100);
+        const deskPerf = Math.round((deskLh.categories.performance?.score || 0) * 100);
+
+        // Render Mobile & Desktop Scores
+        document.getElementById('mobile-score').innerText = mobPerf;
+        const mobBadge = getBadgeStyle(mobPerf);
+        document.getElementById('mobile-badge').innerText = mobBadge.label;
+        document.getElementById('mobile-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${mobBadge.class}`;
+
+        document.getElementById('desktop-score').innerText = deskPerf;
+        const deskBadge = getBadgeStyle(deskPerf);
+        document.getElementById('desktop-badge').innerText = deskBadge.label;
+        document.getElementById('desktop-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${deskBadge.class}`;
+
+        // Render Core Web Vitals
+        document.getElementById('cwv-lcp').innerText = mobLh.audits['largest-contentful-paint']?.displayValue || 'N/A';
+        document.getElementById('cwv-tbt').innerText = mobLh.audits['total-blocking-time']?.displayValue || 'N/A';
+        document.getElementById('cwv-cls').innerText = mobLh.audits['cumulative-layout-shift']?.displayValue || 'N/A';
+        document.getElementById('cwv-fcp').innerText = mobLh.audits['first-contentful-paint']?.displayValue || 'N/A';
+
+        // Render DNS Checks
+        const spfEl = document.getElementById('dns-spf');
+        spfEl.innerText = dnsData.spf ? 'CONFIGURED' : 'MISSING';
+        spfEl.className = `px-2.5 py-1 text-xs font-mono font-semibold rounded ${dnsData.spf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+
+        const dmarcEl = document.getElementById('dns-dmarc');
+        dmarcEl.innerText = dnsData.dmarc ? 'CONFIGURED' : 'MISSING';
+        dmarcEl.className = `px-2.5 py-1 text-xs font-mono font-semibold rounded ${dnsData.dmarc ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+
+        // Render Opportunities & Payload Waste
+        const issuesList = document.getElementById('issues-list');
+        issuesList.innerHTML = '';
+        
+        const keyAudits = [
+          'render-blocking-resources',
+          'unused-javascript',
+          'unused-css-rules',
+          'modern-image-formats',
+          'uses-optimized-images'
+        ];
+
+        let totalWasteBytes = 0;
+        let count = 0;
+
+        for (const key of keyAudits) {
+          const audit = mobLh.audits[key];
+          if (audit && audit.score !== null && audit.score < 0.9) {
+            const savings = audit.details?.overallSavingsBytes || 0;
+            totalWasteBytes += savings;
+
+            const li = document.createElement('li');
+            li.className = 'p-3.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-300 flex justify-between items-center gap-4';
+            
+            const wasteKb = savings > 0 ? `${(savings / 1024).toFixed(0)} KB potential saving` : (audit.displayValue || 'Action required');
+            
+            li.innerHTML = `
+              <div>
+                <p class="font-semibold text-white">${audit.title}</p>
+                <p class="text-zinc-500 text-[11px] mt-0.5">${audit.description.split('.')[0]}.</p>
+              </div>
+              <span class="px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 font-mono text-[11px] rounded whitespace-nowrap">${wasteKb}</span>
+            `;
+            issuesList.appendChild(li);
+            count++;
+          }
+        }
+
+        if (count === 0) {
+          issuesList.innerHTML = '<li class="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-400">No major code waste detected on mobile.</li>';
+        }
+
+        const totalMb = (totalWasteBytes / (1024 * 1024)).toFixed(2);
+        document.getElementById('total-savings').innerText = totalWasteBytes > 0 ? `~${totalMb} MB Unnecessary Payload` : '';
+
+        // Form Hidden Data
+        document.getElementById('hidden-scanned-url').value = targetUrl;
+        document.getElementById('hidden-summary-data').value = `Mobile: ${mobPerf}, Desktop: ${deskPerf}, SPF: ${dnsData.spf}, DMARC: ${dnsData.dmarc}, Waste: ${totalMb}MB`;
+
+        statusDiv.classList.add('hidden');
+        resultsDiv.classList.remove('hidden');
+      } catch (err) {
+        statusDiv.innerHTML = `<span class="text-rose-400 font-medium">Scan failed: ${err.message}</span>`;
+        console.error('Diagnostic error:', err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
