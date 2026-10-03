@@ -104,86 +104,104 @@
     </div>
   </main>
 
-  <script>
-    function getScoreBadge(score) {
-      if (score >= 90) return { label: 'Good', class: 'bg-emerald-100 text-emerald-800' };
-      if (score >= 50) return { label: 'Needs Work', class: 'bg-amber-100 text-amber-800' };
-      return { label: 'Poor', class: 'bg-rose-100 text-rose-800' };
-    }
+<script>
+  // Paste your free Google API key here
+  const GOOGLE_API_KEY = "AIzaSyBotG4NfMjX_UidU-VxDeyS_znwkkpVorw";
 
-    document.getElementById('audit-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+  function getScoreBadge(score) {
+    if (score >= 90) return { label: 'Good', class: 'bg-emerald-100 text-emerald-800' };
+    if (score >= 50) return { label: 'Needs Work', class: 'bg-amber-100 text-amber-800' };
+    return { label: 'Poor', class: 'bg-rose-100 text-rose-800' };
+  }
+
+  document.getElementById('audit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const targetUrl = document.getElementById('site-url').value;
+    const statusDiv = document.getElementById('audit-status');
+    const resultsDiv = document.getElementById('audit-results');
+    const btn = document.getElementById('audit-btn');
+
+    statusDiv.classList.remove('hidden');
+    statusDiv.innerHTML = `
+      <svg class="animate-spin h-4 w-4 text-zinc-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>Analyzing performance and accessibility (~10-15 seconds)...</span>
+    `;
+    resultsDiv.classList.add('hidden');
+    btn.disabled = true;
+
+    try {
+      // Endpoint with API key and lowercase categories
+      let apiUrl = `https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=performance&category=accessibility&strategy=mobile`;
       
-      const targetUrl = document.getElementById('site-url').value;
-      const statusDiv = document.getElementById('audit-status');
-      const resultsDiv = document.getElementById('audit-results');
-      const btn = document.getElementById('audit-btn');
-
-      statusDiv.classList.remove('hidden');
-      resultsDiv.classList.add('hidden');
-      btn.disabled = true;
-
-      try {
-        const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=PERFORMANCE&category=ACCESSIBILITY&strategy=mobile`;
-        
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error('API scan failed');
-        const data = await res.json();
-
-        const lighthouse = data.lighthouseResult;
-        const perfScore = Math.round((lighthouse.categories.performance?.score || 0) * 100);
-        const a11yScore = Math.round((lighthouse.categories.accessibility?.score || 0) * 100);
-
-        // Render Performance
-        document.getElementById('perf-score').innerText = `${perfScore}/100`;
-        const perfBadge = getScoreBadge(perfScore);
-        const perfBadgeEl = document.getElementById('perf-badge');
-        perfBadgeEl.innerText = perfBadge.label;
-        perfBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${perfBadge.class}`;
-
-        // Render Accessibility
-        document.getElementById('a11y-score').innerText = `${a11yScore}/100`;
-        const a11yBadge = getScoreBadge(a11yScore);
-        const a11yBadgeEl = document.getElementById('a11y-badge');
-        a11yBadgeEl.innerText = a11yBadge.label;
-        a11yBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${a11yBadge.class}`;
-
-        // Render Issues
-        const issuesList = document.getElementById('issues-list');
-        issuesList.innerHTML = '';
-        
-        const keyAudits = ['render-blocking-resources', 'unused-javascript', 'color-contrast', 'image-alt'];
-        let foundCount = 0;
-
-        for (const key of keyAudits) {
-          const audit = lighthouse.audits[key];
-          if (audit && audit.score !== null && audit.score < 0.9) {
-            const li = document.createElement('li');
-            li.className = 'p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 flex flex-col gap-1';
-            li.innerHTML = `<span class="font-medium text-zinc-900">${audit.title}</span><span class="text-zinc-500">${audit.displayValue || audit.description}</span>`;
-            issuesList.appendChild(li);
-            foundCount++;
-            if (foundCount >= 3) break;
-          }
-        }
-
-        if (foundCount === 0) {
-          issuesList.innerHTML = '<li class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-600">No critical headline performance issues detected.</li>';
-        }
-
-        // Hidden Inputs
-        document.getElementById('hidden-scanned-url').value = targetUrl;
-        document.getElementById('hidden-scores').value = `Perf: ${perfScore}/100, A11y: ${a11yScore}/100`;
-
-        statusDiv.classList.add('hidden');
-        resultsDiv.classList.remove('hidden');
-      } catch (err) {
-        statusDiv.innerHTML = '<span class="text-rose-600 font-medium">Scan failed. Please double-check the URL and try again.</span>';
-        console.error(err);
-      } finally {
-        btn.disabled = false;
+      if (GOOGLE_API_KEY && GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY_HERE") {
+        apiUrl += `&key=${GOOGLE_API_KEY}`;
       }
-    });
-  </script>
+
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error?.message || `API error ${res.status}`);
+      }
+
+      const lighthouse = data.lighthouseResult;
+      const perfScore = Math.round((lighthouse.categories.performance?.score || 0) * 100);
+      const a11yScore = Math.round((lighthouse.categories.accessibility?.score || 0) * 100);
+
+      // Render Performance
+      document.getElementById('perf-score').innerText = `${perfScore}/100`;
+      const perfBadge = getScoreBadge(perfScore);
+      const perfBadgeEl = document.getElementById('perf-badge');
+      perfBadgeEl.innerText = perfBadge.label;
+      perfBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${perfBadge.class}`;
+
+      // Render Accessibility
+      document.getElementById('a11y-score').innerText = `${a11yScore}/100`;
+      const a11yBadge = getScoreBadge(a11yScore);
+      const a11yBadgeEl = document.getElementById('a11y-badge');
+      a11yBadgeEl.innerText = a11yBadge.label;
+      a11yBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${a11yBadge.class}`;
+
+      // Render Issues
+      const issuesList = document.getElementById('issues-list');
+      issuesList.innerHTML = '';
+      
+      const keyAudits = ['render-blocking-resources', 'unused-javascript', 'color-contrast', 'image-alt'];
+      let foundCount = 0;
+
+      for (const key of keyAudits) {
+        const audit = lighthouse.audits[key];
+        if (audit && audit.score !== null && audit.score < 0.9) {
+          const li = document.createElement('li');
+          li.className = 'p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 flex flex-col gap-1';
+          li.innerHTML = `<span class="font-medium text-zinc-900">${audit.title}</span><span class="text-zinc-500">${audit.displayValue || audit.description}</span>`;
+          issuesList.appendChild(li);
+          foundCount++;
+          if (foundCount >= 3) break;
+        }
+      }
+
+      if (foundCount === 0) {
+        issuesList.innerHTML = '<li class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-600">No critical headline performance issues detected.</li>';
+      }
+
+      // Hidden Inputs
+      document.getElementById('hidden-scanned-url').value = targetUrl;
+      document.getElementById('hidden-scores').value = `Perf: ${perfScore}/100, A11y: ${a11yScore}/100`;
+
+      statusDiv.classList.add('hidden');
+      resultsDiv.classList.remove('hidden');
+    } catch (err) {
+      statusDiv.innerHTML = `<span class="text-rose-600 font-medium">Scan failed: ${err.message}</span>`;
+      console.error('PageSpeed API Error:', err);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>
