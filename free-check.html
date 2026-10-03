@@ -203,8 +203,30 @@
   </main>
 
 <script>
-  // Update with your actual Cloudflare Worker domain
-  const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev"; 
+  const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev";
+
+  const AUDIT_TRANSLATIONS = {
+    'unused-javascript': {
+      title: 'Excessive Background Script Bloat',
+      desc: 'Heavy analytics or plugin scripts freeze the screen and delay button taps on mobile devices.'
+    },
+    'unused-css-rules': {
+      title: 'Unnecessary Styling Overhead',
+      desc: 'Old or unused styling code delays how quickly the website looks fully loaded to visitors.'
+    },
+    'render-blocking-resources': {
+      title: 'First Impression Delay',
+      desc: 'Critical visual elements are blocked from displaying while the browser downloads non-essential files.'
+    },
+    'modern-image-formats': {
+      title: 'Unoptimized Image Payload',
+      desc: 'Images are saved in legacy formats, forcing mobile users to download unnecessarily large files.'
+    },
+    'uses-optimized-images': {
+      title: 'Uncompressed Media Assets',
+      desc: 'Large graphic assets burn user mobile data and slow down initial page rendering.'
+    }
+  };
 
   function getBadgeStyle(score) {
     if (score >= 90) return { label: 'Good', class: 'bg-emerald-950 text-emerald-400 border border-emerald-800' };
@@ -212,34 +234,104 @@
     return { label: 'Poor', class: 'bg-rose-950 text-rose-400 border border-rose-800' };
   }
 
-  // Auto-run if URL query param exists (?url=...)
+  // 1. Instant Snapshot Load Handler (Decodes #report=... without API calls)
   window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const queryUrl = params.get('url');
-    if (queryUrl) {
-      document.getElementById('site-url').value = queryUrl;
-      document.getElementById('audit-form').dispatchEvent(new Event('submit'));
+    if (window.location.hash.startsWith('#report=')) {
+      try {
+        const rawHash = window.location.hash.replace('#report=', '');
+        const snapshot = JSON.parse(atob(decodeURIComponent(rawHash)));
+        renderSnapshotReport(snapshot);
+      } catch (e) {
+        console.error('Invalid snapshot URL', e);
+      }
     }
   });
 
+  // 2. Generate Shareable Base64 Snapshot URL
+  let currentSnapshot = null;
+
   function copyShareUrl() {
-    const targetUrl = document.getElementById('site-url').value;
-    const shareableLink = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(targetUrl)}`;
+    if (!currentSnapshot) return;
+    const jsonStr = JSON.stringify(currentSnapshot);
+    const encoded = encodeURIComponent(btoa(jsonStr));
+    const shareableLink = `${window.location.origin}${window.location.pathname}#report=${encoded}`;
+    
     navigator.clipboard.writeText(shareableLink);
     const btn = document.getElementById('share-btn');
-    btn.innerText = '✓ Copied to Clipboard!';
+    btn.innerText = '✓ Report Link Copied!';
     setTimeout(() => btn.innerText = '🔗 Copy Shareable Report URL', 2500);
   }
 
-  // Helper with response validation to prevent 'undefined lighthouseResult' crashes
+  // Render Report from Saved Data Snapshot
+  function renderSnapshotReport(data) {
+    document.getElementById('site-url').value = data.url;
+    
+    // Render Scores
+    document.getElementById('mobile-score').innerText = data.mobPerf;
+    const mobBadge = getBadgeStyle(data.mobPerf);
+    document.getElementById('mobile-badge').innerText = mobBadge.label;
+    document.getElementById('mobile-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${mobBadge.class}`;
+
+    document.getElementById('desktop-score').innerText = data.deskPerf;
+    const deskBadge = getBadgeStyle(data.deskPerf);
+    document.getElementById('desktop-badge').innerText = deskBadge.label;
+    document.getElementById('desktop-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${deskBadge.class}`;
+
+    // Render CWV
+    document.getElementById('cwv-lcp').innerText = data.lcp;
+    document.getElementById('cwv-tbt').innerText = data.tbt;
+    document.getElementById('cwv-cls').innerText = data.cls;
+    document.getElementById('cwv-fcp').innerText = data.fcp;
+
+    // Render Risk
+    document.getElementById('risk-text').innerHTML = data.riskText;
+
+    // Render Security & Links
+    const spfEl = document.getElementById('dns-spf');
+    spfEl.innerText = data.spf ? 'PASS' : 'MISSING';
+    spfEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${data.spf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+
+    const dmarcEl = document.getElementById('dns-dmarc');
+    dmarcEl.innerText = data.dmarc ? 'PASS' : 'MISSING';
+    dmarcEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${data.dmarc ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+
+    const linkEl = document.getElementById('link-status');
+    linkEl.innerText = data.brokenLinks > 0 ? `${data.brokenLinks} Broken` : 'PASS (0 Broken)';
+    linkEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${data.brokenLinks > 0 ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'}`;
+
+    // Render Translated Plain-English Issues
+    const issuesList = document.getElementById('issues-list');
+    issuesList.innerHTML = '';
+
+    if (data.issues && data.issues.length > 0) {
+      data.issues.forEach(issue => {
+        const li = document.createElement('li');
+        li.className = 'p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-300 flex justify-between items-center gap-4';
+        li.innerHTML = `
+          <div>
+            <p class="font-semibold text-white">${issue.title}</p>
+            <p class="text-zinc-400 text-[11px] mt-0.5">${issue.desc}</p>
+          </div>
+          <span class="px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 font-mono text-[11px] rounded whitespace-nowrap">${issue.wasteKb}</span>
+        `;
+        issuesList.appendChild(li);
+      });
+    } else {
+      issuesList.innerHTML = '<li class="p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-400">No major code waste detected on mobile.</li>';
+    }
+
+    document.getElementById('total-savings').innerText = data.totalMb > 0 ? `~${data.totalMb} MB Unnecessary Payload` : '';
+
+    // Show Results Immediately
+    document.getElementById('audit-status').classList.add('hidden');
+    document.getElementById('audit-results').classList.remove('hidden');
+    document.getElementById('share-btn').classList.remove('hidden');
+  }
+
   async function fetchPsiData(url, strategy) {
     const res = await fetch(`${WORKER_URL}/api/psi?url=${encodeURIComponent(url)}&strategy=${strategy}`);
     const data = await res.json();
-    
-    if (!res.ok || data.error || !data.lighthouseResult) {
-      const errMsg = data.error?.message || data.error || `Failed to retrieve ${strategy} Lighthouse audit data.`;
-      throw new Error(errMsg);
-    }
+    if (!res.ok || data.error || !data.lighthouseResult) throw new Error(`Audit failed for ${strategy}`);
     return data;
   }
 
@@ -261,7 +353,6 @@
   async function checkInternalLinks(domain) {
     try {
       const baseUrl = new URL(domain).origin;
-      // Syntax typo fix: removed stray token
       const testLinks = [baseUrl, `${baseUrl}/about`, `${baseUrl}/contact`, `${baseUrl}/services`];
       const res = await fetch(`${WORKER_URL}/api/check-links`, {
         method: 'POST',
@@ -275,161 +366,94 @@
     }
   }
 
+  // Live Audit Handler
   document.getElementById('audit-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const targetUrl = document.getElementById('site-url').value;
-  const statusDiv = document.getElementById('audit-status');
-  const resultsDiv = document.getElementById('audit-results');
-  const btn = document.getElementById('audit-btn');
-  const shareBtn = document.getElementById('share-btn');
-
-  statusDiv.classList.remove('hidden');
-  statusDiv.innerHTML = `
-    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <div>
-      <p class="font-medium text-white">Running full-stack site diagnostics...</p>
-      <p class="text-xs text-zinc-500 mt-0.5">Evaluating performance, security records, and link integrity in parallel (~10s)</p>
-    </div>
-  `;
-  
-  resultsDiv.classList.add('hidden');
-  shareBtn.classList.add('hidden');
-  btn.disabled = true;
-
-  // 1. Run all independent diagnostics using Promise.allSettled()
-  const [mobOutcome, deskOutcome, dnsOutcome, linkOutcome] = await Promise.allSettled([
-    fetchPsiData(targetUrl, 'mobile'),
-    fetchPsiData(targetUrl, 'desktop'),
-    checkSecurityDns(targetUrl),
-    checkInternalLinks(targetUrl)
-  ]);
-
-  // -------------------------------------------------------------
-  // MODULE 1: Mobile & Desktop Performance (Google PSI)
-  // -------------------------------------------------------------
-  if (mobOutcome.status === 'fulfilled' && mobOutcome.value?.lighthouseResult) {
-    const mobLh = mobOutcome.value.lighthouseResult;
-    const mobPerf = Math.round((mobLh.categories?.performance?.score || 0) * 100);
+    e.preventDefault();
     
-    document.getElementById('mobile-score').innerText = mobPerf;
-    const mobBadge = getBadgeStyle(mobPerf);
-    document.getElementById('mobile-badge').innerText = mobBadge.label;
-    document.getElementById('mobile-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${mobBadge.class}`;
+    const targetUrl = document.getElementById('site-url').value;
+    const statusDiv = document.getElementById('audit-status');
+    const resultsDiv = document.getElementById('audit-results');
+    const btn = document.getElementById('audit-btn');
+    const shareBtn = document.getElementById('share-btn');
 
-    // CWV Metrics
-    document.getElementById('cwv-lcp').innerText = mobLh.audits['largest-contentful-paint']?.displayValue || 'N/A';
-    document.getElementById('cwv-tbt').innerText = mobLh.audits['total-blocking-time']?.displayValue || 'N/A';
-    document.getElementById('cwv-cls').innerText = mobLh.audits['cumulative-layout-shift']?.displayValue || 'N/A';
-    document.getElementById('cwv-fcp').innerText = mobLh.audits['first-contentful-paint']?.displayValue || 'N/A';
+    statusDiv.classList.remove('hidden');
+    resultsDiv.classList.add('hidden');
+    shareBtn.classList.add('hidden');
+    btn.disabled = true;
 
-    // Risk Card
-    const lcpMs = mobLh.audits['largest-contentful-paint']?.numericValue || 0;
-    const riskTextEl = document.getElementById('risk-text');
-    if (lcpMs > 4000) {
-      riskTextEl.innerHTML = 'LCP exceeds 4s. Google research indicates an estimated <strong class="text-white font-mono">+32% bounce rate penalty</strong> on organic traffic.';
-    } else if (lcpMs > 2500) {
-      riskTextEl.innerHTML = 'LCP is moderate (2.5s–4s). Moderate conversion drag observed on mobile devices.';
-    } else {
-      riskTextEl.innerHTML = 'Core Web Vitals are within acceptable thresholds. Good user experience baseline.';
-    }
+    try {
+      const [mobOutcome, deskOutcome, dnsOutcome, linkOutcome] = await Promise.allSettled([
+        fetchPsiData(targetUrl, 'mobile'),
+        fetchPsiData(targetUrl, 'desktop'),
+        checkSecurityDns(targetUrl),
+        checkInternalLinks(targetUrl)
+      ]);
 
-    // Code Waste Opportunities
-    const issuesList = document.getElementById('issues-list');
-    issuesList.innerHTML = '';
-    const keyAudits = ['render-blocking-resources', 'unused-javascript', 'unused-css-rules', 'modern-image-formats', 'uses-optimized-images'];
-    let totalWasteBytes = 0;
-    let count = 0;
+      const mobLh = mobOutcome.status === 'fulfilled' ? mobOutcome.value.lighthouseResult : null;
+      const deskLh = deskOutcome.status === 'fulfilled' ? deskOutcome.value.lighthouseResult : null;
 
-    for (const key of keyAudits) {
-      const audit = mobLh.audits?.[key];
-      if (audit && audit.score !== null && audit.score < 0.9) {
-        const savings = audit.details?.overallSavingsBytes || 0;
-        totalWasteBytes += savings;
+      const mobPerf = mobLh ? Math.round((mobLh.categories?.performance?.score || 0) * 100) : 0;
+      const deskPerf = deskLh ? Math.round((deskLh.categories?.performance?.score || 0) * 100) : 0;
 
-        const li = document.createElement('li');
-        li.className = 'p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-300 flex justify-between items-center gap-4';
-        const wasteKb = savings > 0 ? `${(savings / 1024).toFixed(0)} KB potential saving` : (audit.displayValue || 'Action required');
-        
-        li.innerHTML = `
-          <div>
-            <p class="font-semibold text-white">${audit.title}</p>
-            <p class="text-zinc-500 text-[11px] mt-0.5">${(audit.description || '').split('.')[0]}.</p>
-          </div>
-          <span class="px-2.5 py-1 bg-amber-950/60 border border-amber-800/60 text-amber-300 font-mono text-[11px] rounded whitespace-nowrap">${wasteKb}</span>
-        `;
-        issuesList.appendChild(li);
-        count++;
+      const lcpMs = mobLh?.audits['largest-contentful-paint']?.numericValue || 0;
+      let riskText = 'Core Web Vitals baseline evaluated.';
+      if (lcpMs > 4000) {
+        riskText = 'LCP exceeds 4s. Google research indicates an estimated <strong class="text-white font-mono">+32% bounce rate penalty</strong> on organic traffic.';
+      } else if (lcpMs > 2500) {
+        riskText = 'LCP is moderate (2.5s–4s). Moderate conversion drag observed on mobile devices.';
       }
+
+      // Collect Translated Non-Technical Issues
+      const issues = [];
+      let totalWasteBytes = 0;
+      const keyAudits = ['render-blocking-resources', 'unused-javascript', 'unused-css-rules', 'modern-image-formats', 'uses-optimized-images'];
+
+      if (mobLh) {
+        for (const key of keyAudits) {
+          const audit = mobLh.audits?.[key];
+          if (audit && audit.score !== null && audit.score < 0.9) {
+            const savings = audit.details?.overallSavingsBytes || 0;
+            totalWasteBytes += savings;
+            
+            const translation = AUDIT_TRANSLATIONS[key] || { title: audit.title, desc: audit.description };
+            const wasteKb = savings > 0 ? `${(savings / 1024).toFixed(0)} KB potential saving` : 'Action required';
+
+            issues.push({ title: translation.title, desc: translation.desc, wasteKb });
+          }
+        }
+      }
+
+      const dnsData = dnsOutcome.status === 'fulfilled' ? dnsOutcome.value : { spf: false, dmarc: false };
+      const brokenLinks = linkOutcome.status === 'fulfilled' ? linkOutcome.value : 0;
+      const totalMb = (totalWasteBytes / (1024 * 1024)).toFixed(2);
+
+      // Save complete snapshot state into memory
+      currentSnapshot = {
+        url: targetUrl,
+        mobPerf,
+        deskPerf,
+        lcp: mobLh?.audits['largest-contentful-paint']?.displayValue || 'N/A',
+        tbt: mobLh?.audits['total-blocking-time']?.displayValue || 'N/A',
+        cls: mobLh?.audits['cumulative-layout-shift']?.displayValue || 'N/A',
+        fcp: mobLh?.audits['first-contentful-paint']?.displayValue || 'N/A',
+        riskText,
+        spf: dnsData.spf,
+        dmarc: dnsData.dmarc,
+        brokenLinks,
+        issues,
+        totalMb
+      };
+
+      // Render directly
+      renderSnapshotReport(currentSnapshot);
+
+    } catch (err) {
+      statusDiv.innerHTML = `<span class="text-rose-400 font-medium">Scan failed: ${err.message}</span>`;
+      console.error(err);
+    } finally {
+      btn.disabled = false;
     }
-
-    if (count === 0) {
-      issuesList.innerHTML = '<li class="p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-400">No major code waste detected on mobile.</li>';
-    }
-
-    const totalMb = (totalWasteBytes / (1024 * 1024)).toFixed(2);
-    document.getElementById('total-savings').innerText = totalWasteBytes > 0 ? `~${totalMb} MB Unnecessary Payload` : '';
-
-  } else {
-    // Localized Fallback if Google PSI Mobile fails
-    document.getElementById('mobile-score').innerText = 'N/A';
-    document.getElementById('mobile-badge').innerText = 'Blocked / Error';
-    document.getElementById('mobile-badge').className = 'px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-800 text-zinc-400';
-    document.getElementById('risk-text').innerText = 'Performance scan unavailable. Target domain may be blocking automated Lighthouse runners or rate limits were reached.';
-    document.getElementById('issues-list').innerHTML = '<li class="p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-400">Performance opportunities unavailable for this domain.</li>';
-  }
-
-  if (deskOutcome.status === 'fulfilled' && deskOutcome.value?.lighthouseResult) {
-    const deskLh = deskOutcome.value.lighthouseResult;
-    const deskPerf = Math.round((deskLh.categories?.performance?.score || 0) * 100);
-    document.getElementById('desktop-score').innerText = deskPerf;
-    const deskBadge = getBadgeStyle(deskPerf);
-    document.getElementById('desktop-badge').innerText = deskBadge.label;
-    document.getElementById('desktop-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${deskBadge.class}`;
-  } else {
-    document.getElementById('desktop-score').innerText = 'N/A';
-    document.getElementById('desktop-badge').innerText = 'Blocked / Error';
-    document.getElementById('desktop-badge').className = 'px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-800 text-zinc-400';
-  }
-
-  // -------------------------------------------------------------
-  // MODULE 2: Security DNS Checks (Cloudflare DoH)
-  // -------------------------------------------------------------
-  const dnsData = dnsOutcome.status === 'fulfilled' ? dnsOutcome.value : { spf: false, dmarc: false };
-  const spfEl = document.getElementById('dns-spf');
-  spfEl.innerText = dnsData.spf ? 'PASS' : 'MISSING';
-  spfEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${dnsData.spf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
-
-  const dmarcEl = document.getElementById('dns-dmarc');
-  dmarcEl.innerText = dnsData.dmarc ? 'PASS' : 'MISSING';
-  dmarcEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${dnsData.dmarc ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
-
-  // -------------------------------------------------------------
-  // MODULE 3: Link Integrity (Worker HEAD Requests)
-  // -------------------------------------------------------------
-  const brokenLinks = linkOutcome.status === 'fulfilled' ? linkOutcome.value : 0;
-  const linkEl = document.getElementById('link-status');
-  if (linkOutcome.status === 'fulfilled') {
-    linkEl.innerText = brokenLinks > 0 ? `${brokenLinks} Broken` : 'PASS (0 Broken)';
-    linkEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${brokenLinks > 0 ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'}`;
-  } else {
-    linkEl.innerText = 'UNAVAILABLE';
-    linkEl.className = 'px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-800 text-zinc-400';
-  }
-
-  // Populate hidden form fields
-  document.getElementById('hidden-scanned-url').value = targetUrl;
-  document.getElementById('hidden-summary-data').value = `Target: ${targetUrl}, SPF: ${dnsData.spf}, DMARC: ${dnsData.dmarc}, BrokenLinks: ${brokenLinks}`;
-
-  // Reveal results dashboard reliably
-  statusDiv.classList.add('hidden');
-  resultsDiv.classList.remove('hidden');
-  shareBtn.classList.remove('hidden');
-  btn.disabled = false;
-});
+  });
 </script>
 </body>
 </html>
