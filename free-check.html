@@ -203,13 +203,21 @@
       }
     }
 
+    // Replace with your actual Cloudflare Worker URL
+    const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev";
+    
     async function fetchPsi(url, strategy) {
-      let apiUrl = `https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=performance&category=accessibility&strategy=${strategy}`;
-      if (GOOGLE_API_KEY && GOOGLE_API_KEY !== "YOUR_GOOGLE_API_KEY_HERE") {
-        apiUrl += `&key=${GOOGLE_API_KEY}`;
-      }
-      const res = await fetch(apiUrl);
-      if (!res.ok) throw new Error(`${strategy} PSI audit failed`);
+      const res = await fetch(`${WORKER_URL}/api/psi?url=${encodeURIComponent(url)}&strategy=${strategy}`);
+      if (!res.ok) throw new Error(`${strategy} audit failed`);
+      return res.json();
+    }
+    
+    async function checkBrokenLinks(linkArray) {
+      const res = await fetch(`${WORKER_URL}/api/check-links`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ links: linkArray })
+      });
       return res.json();
     }
 
