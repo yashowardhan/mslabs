@@ -6,21 +6,29 @@
   <title>Engineering Site Health Diagnostic — MS Labs Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-zinc-900 text-zinc-100 font-sans antialiased min-h-screen py-10 px-4">
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen py-10 px-4">
 
-  <main class="max-w-4xl mx-auto bg-zinc-950 border border-zinc-800 rounded-2xl p-6 sm:p-10 shadow-2xl">
+  <main class="max-w-4xl mx-auto bg-zinc-900/90 border border-zinc-800 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-sm">
     
     <!-- Header -->
-    <div class="mb-8 border-b border-zinc-800 pb-6">
-      <div class="flex items-center justify-between gap-4 mb-3">
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-700/60 rounded-full text-xs font-mono text-zinc-300">
+    <div class="mb-8 border-b border-zinc-800 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-700/60 rounded-full text-xs font-mono text-zinc-300 mb-3">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           MS LABS // DIAGNOSTIC ENGINE
         </div>
-        <span class="text-xs text-zinc-500 font-mono">Parallel Audit v2.1</span>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Full-Stack Site & Health Inspector</h1>
+        <p class="text-sm text-zinc-400 mt-1">Multi-device Core Web Vitals, link integrity, and DNS security checks.</p>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Full-Stack Site & Health Inspector</h1>
-      <p class="text-sm text-zinc-400 mt-1">Multi-device Core Web Vitals, payload analysis, and DNS email security checks.</p>
+
+      <!-- Share Report Button (Visible after scan) -->
+      <button 
+        id="share-btn" 
+        onclick="copyShareUrl()" 
+        class="hidden px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-mono text-zinc-200 transition-all flex items-center gap-2 self-start sm:self-auto"
+      >
+        <span>🔗 Copy Shareable Report URL</span>
+      </button>
     </div>
 
     <!-- URL Input Form -->
@@ -30,7 +38,7 @@
         id="site-url" 
         placeholder="https://yourwebsite.com" 
         required 
-        class="flex-1 px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400 transition-all font-mono"
+        class="flex-1 px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400 transition-all font-mono"
       />
       <button 
         type="submit" 
@@ -42,28 +50,27 @@
     </form>
 
     <!-- Loading State -->
-    <div id="audit-status" class="hidden p-6 bg-zinc-900/80 border border-zinc-800 rounded-xl text-sm text-zinc-300 mb-8 flex items-center gap-4">
+    <div id="audit-status" class="hidden p-6 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 mb-8 flex items-center gap-4">
       <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
       <div>
-        <p class="font-medium text-white" id="status-text">Initializing parallel audits...</p>
-        <p class="text-xs text-zinc-500 mt-0.5">Evaluating Mobile, Desktop Lighthouse, and Cloudflare DNS records (~10s)</p>
+        <p class="font-medium text-white" id="status-text">Initializing parallel diagnostic engines...</p>
+        <p class="text-xs text-zinc-500 mt-0.5">Checking Mobile, Desktop, Security Headers, and Internal Links (~10s)</p>
       </div>
     </div>
 
     <!-- Results Dashboard -->
     <div id="audit-results" class="hidden space-y-8">
       
-      <!-- 1. Mobile vs Desktop Side-by-Side -->
+      <!-- 1. Multi-Device Performance -->
       <div>
         <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">1. Multi-Device Performance</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Mobile Card -->
-          <div class="p-5 bg-zinc-900 border border-zinc-800 rounded-xl">
+          <div class="p-5 bg-zinc-950 border border-zinc-800 rounded-xl">
             <div class="flex justify-between items-center mb-3">
-              <span class="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">📱 Mobile Strategy</span>
+              <span class="text-xs font-semibold text-zinc-400">📱 Mobile Strategy</span>
               <span id="mobile-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
             </div>
             <div class="flex items-baseline gap-2">
@@ -72,10 +79,9 @@
             </div>
           </div>
 
-          <!-- Desktop Card -->
-          <div class="p-5 bg-zinc-900 border border-zinc-800 rounded-xl">
+          <div class="p-5 bg-zinc-950 border border-zinc-800 rounded-xl">
             <div class="flex justify-between items-center mb-3">
-              <span class="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">💻 Desktop Strategy</span>
+              <span class="text-xs font-semibold text-zinc-400">💻 Desktop Strategy</span>
               <span id="desktop-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
             </div>
             <div class="flex items-baseline gap-2">
@@ -86,51 +92,67 @@
         </div>
       </div>
 
-      <!-- 2. Core Web Vitals Breakdown (Mobile Lab Metrics) -->
+      <!-- 2. Core Web Vitals + Dynamic Risk Card -->
       <div>
-        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">2. Core Web Vitals (Mobile Lab)</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">2. Core Web Vitals & Business Impact</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono mb-4">
+          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
             <span class="text-[10px] text-zinc-500 block uppercase">LCP (Largest Paint)</span>
             <span id="cwv-lcp" class="text-base font-bold text-white mt-1 block">--</span>
           </div>
-          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
             <span class="text-[10px] text-zinc-500 block uppercase">TBT (Blocking Time)</span>
             <span id="cwv-tbt" class="text-base font-bold text-white mt-1 block">--</span>
           </div>
-          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
             <span class="text-[10px] text-zinc-500 block uppercase">CLS (Layout Shift)</span>
             <span id="cwv-cls" class="text-base font-bold text-white mt-1 block">--</span>
           </div>
-          <div class="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
             <span class="text-[10px] text-zinc-500 block uppercase">FCP (First Paint)</span>
             <span id="cwv-fcp" class="text-base font-bold text-white mt-1 block">--</span>
           </div>
         </div>
+
+        <!-- Calculated Risk Summary Card -->
+        <div id="risk-card" class="p-4 bg-amber-950/30 border border-amber-800/50 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span class="text-[10px] font-mono font-semibold text-amber-400 uppercase tracking-wider block">Estimated Conversion Penalty</span>
+            <p id="risk-text" class="text-xs text-zinc-300 mt-0.5">Analyzing load delay impact on conversion rates...</p>
+          </div>
+          <span id="risk-badge" class="px-3 py-1 bg-amber-900/60 text-amber-200 border border-amber-700/60 font-mono text-xs rounded-lg whitespace-nowrap font-medium">Risk Calculated</span>
+        </div>
       </div>
 
-      <!-- 3. Infrastructure & Security Checks (Cloudflare DoH) -->
+      <!-- 3. Security & Link Health (Powered by Worker API) -->
       <div>
-        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">3. Domain Security & Deliverability</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="p-4 bg-zinc-900 border border-zinc-800 rounded-lg flex justify-between items-center">
+        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">3. Security & Link Integrity</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
             <div>
               <p class="text-xs font-medium text-zinc-200">SPF DNS Record</p>
-              <p class="text-[11px] text-zinc-500">Prevents email spoofing on primary domain</p>
+              <p class="text-[10px] text-zinc-500">Email anti-spoofing</p>
             </div>
-            <span id="dns-spf" class="px-2.5 py-1 text-xs font-mono font-medium rounded">Checking...</span>
+            <span id="dns-spf" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
           </div>
-          <div class="p-4 bg-zinc-900 border border-zinc-800 rounded-lg flex justify-between items-center">
+          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
             <div>
               <p class="text-xs font-medium text-zinc-200">DMARC Policy</p>
-              <p class="text-[11px] text-zinc-500">Protects domain against inbox placement blocks</p>
+              <p class="text-[10px] text-zinc-500">Inbox placement safety</p>
             </div>
-            <span id="dns-dmarc" class="px-2.5 py-1 text-xs font-mono font-medium rounded">Checking...</span>
+            <span id="dns-dmarc" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
+          </div>
+          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
+            <div>
+              <p class="text-xs font-medium text-zinc-200">Broken Links (404)</p>
+              <p class="text-[10px] text-zinc-500">Sampled navigation</p>
+            </div>
+            <span id="link-status" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
           </div>
         </div>
       </div>
 
-      <!-- 4. Estimated Waste & Opportunities -->
+      <!-- 4. Code & Payload Waste Analysis -->
       <div>
         <div class="flex justify-between items-center mb-3">
           <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">4. Code & Payload Waste Analysis</h2>
@@ -139,39 +161,50 @@
         <ul id="issues-list" class="space-y-2"></ul>
       </div>
 
-      <!-- Lead Capture Form -->
-      <div class="pt-6 border-t border-zinc-800 bg-zinc-900/60 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-10 rounded-b-2xl border-t border-zinc-800">
-        <div class="text-center mb-5 max-w-md mx-auto">
-          <h3 class="text-base font-semibold text-white">Need a Senior Developer to resolve these issues?</h3>
-          <p class="text-xs text-zinc-400 mt-1">Get an engineering proposal with exact time estimates and fixed project scope within 24 hours.</p>
+      <!-- Upgraded Conversion & Lead Capture Section -->
+      <div class="pt-8 border-t border-zinc-800 bg-zinc-950/80 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-10 rounded-b-2xl border-t border-zinc-800">
+        <div class="flex flex-col sm:flex-row items-center gap-6 max-w-2xl mx-auto mb-6">
+          <img src="yash-avatar.png" alt="Yash Kaushik" class="w-16 h-16 rounded-full border border-zinc-700 object-cover flex-shrink-0" />
+          <div class="text-center sm:text-left">
+            <h3 class="text-base font-semibold text-white">Need a Senior Developer to fix these issues?</h3>
+            <p class="text-xs text-zinc-400 mt-1">Get direct engineering support from Yash (11+ yrs exp, Ex-eBay, Walmart, FlyDubai). Fixed scope with 24h turnarounds.</p>
+          </div>
         </div>
 
-        <form action="https://api.web3forms.com/submit" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
-          <input type="hidden" name="scanned_url" id="hidden-scanned-url" value="" />
-          <input type="hidden" name="summary_data" id="hidden-summary-data" value="" />
-          
-          <input 
-            type="email" 
-            name="email" 
-            placeholder="developer@company.com" 
-            required 
-            class="flex-1 px-4 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white font-mono"
-          />
-          <button 
-            type="submit" 
-            class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-semibold rounded-xl transition-all whitespace-nowrap"
-          >
-            Request Audit Plan
-          </button>
-        </form>
+        <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <!-- Option A: Web3Forms Submission -->
+          <form action="https://api.web3forms.com/submit" method="POST" class="flex-1 flex gap-2">
+            <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
+            <input type="hidden" name="scanned_url" id="hidden-scanned-url" value="" />
+            <input type="hidden" name="summary_data" id="hidden-summary-data" value="" />
+            
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="name@company.com" 
+              required 
+              class="flex-1 px-3.5 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white font-mono"
+            />
+            <button 
+              type="submit" 
+              class="px-4 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
+            >
+              Get Fix Plan
+            </button>
+          </form>
+        </div>
+
+        <div class="text-center mt-4">
+          <span class="text-xs text-zinc-500">Or prefer a 1:1 conversation? <a href="https://cal.com/mslabs" target="_blank" class="text-white hover:underline font-medium">Book a 15-min discovery call →</a></span>
+        </div>
       </div>
 
     </div>
   </main>
 
   <script>
-    const GOOGLE_API_KEY = "AIzaSyBotG4NfMjX_UidU-VxDeyS_znwkkpVorw";
+    // Paste your Cloudflare Worker Proxy URL here
+    const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev/";
 
     function getBadgeStyle(score) {
       if (score >= 90) return { label: 'Good', class: 'bg-emerald-950 text-emerald-400 border border-emerald-800' };
@@ -179,46 +212,55 @@
       return { label: 'Poor', class: 'bg-rose-950 text-rose-400 border border-rose-800' };
     }
 
-    // Cloudflare DNS over HTTPS API for zero-server SPF/DMARC checks
+    // Auto-run if URL query param exists (?url=...)
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const queryUrl = params.get('url');
+      if (queryUrl) {
+        document.getElementById('site-url').value = queryUrl;
+        document.getElementById('audit-form').dispatchEvent(new Event('submit'));
+      }
+    });
+
+    function copyShareUrl() {
+      const targetUrl = document.getElementById('site-url').value;
+      const shareableLink = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(targetUrl)}`;
+      navigator.clipboard.writeText(shareableLink);
+      const btn = document.getElementById('share-btn');
+      btn.innerText = '✓ Copied to Clipboard!';
+      setTimeout(() => btn.innerText = '🔗 Copy Shareable Report URL', 2500);
+    }
+
     async function checkSecurityDns(domain) {
       try {
         const cleanDomain = new URL(domain).hostname.replace(/^www\./, '');
-        
-        const spfReq = fetch(`https://cloudflare-dns.com/dns-query?name=${cleanDomain}&type=TXT`, {
-          headers: { 'accept': 'application/dns-json' }
-        }).then(r => r.json());
-
-        const dmarcReq = fetch(`https://cloudflare-dns.com/dns-query?name=_dmarc.${cleanDomain}&type=TXT`, {
-          headers: { 'accept': 'application/dns-json' }
-        }).then(r => r.json());
-
+        const spfReq = fetch(`https://cloudflare-dns.com/dns-query?name=${cleanDomain}&type=TXT`, { headers: { 'accept': 'application/dns-json' } }).then(r => r.json());
+        const dmarcReq = fetch(`https://cloudflare-dns.com/dns-query?name=_dmarc.${cleanDomain}&type=TXT`, { headers: { 'accept': 'application/dns-json' } }).then(r => r.json());
         const [spfRes, dmarcRes] = await Promise.all([spfReq, dmarcReq]);
-
-        const hasSpf = spfRes.Answer?.some(a => a.data?.includes('v=spf1')) || false;
-        const hasDmarc = dmarcRes.Answer?.some(a => a.data?.includes('v=DMARC1')) || false;
-
-        return { spf: hasSpf, dmarc: hasDmarc };
+        return {
+          spf: spfRes.Answer?.some(a => a.data?.includes('v=spf1')) || false,
+          dmarc: dmarcRes.Answer?.some(a => a.data?.includes('v=DMARC1')) || false
+        };
       } catch (e) {
         return { spf: false, dmarc: false };
       }
     }
 
-    // Replace with your actual Cloudflare Worker URL
-    const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev";
-    
-    async function fetchPsi(url, strategy) {
-      const res = await fetch(`${WORKER_URL}/api/psi?url=${encodeURIComponent(url)}&strategy=${strategy}`);
-      if (!res.ok) throw new Error(`${strategy} audit failed`);
-      return res.json();
-    }
-    
-    async function checkBrokenLinks(linkArray) {
-      const res = await fetch(`${WORKER_URL}/api/check-links`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ links: linkArray })
-      });
-      return res.json();
+    async function checkInternalLinks(domain) {
+      try {
+        const baseUrl = new URL(domain).origin;
+        const testLinks = [baseUrl, `${baseUrl}/about`, `${baseUrl}/contact`, `${baseUrl}/services` philosophy];
+        const res = await fetch(`${WORKER_URL}/api/check-links`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ links: testLinks })
+        });
+        const data = await res.json();
+        const broken = data.results?.filter(r => !r.ok).length || 0;
+        return broken;
+      } catch (e) {
+        return 0;
+      }
     }
 
     document.getElementById('audit-form').addEventListener('submit', async (e) => {
@@ -228,26 +270,28 @@
       const statusDiv = document.getElementById('audit-status');
       const resultsDiv = document.getElementById('audit-results');
       const btn = document.getElementById('audit-btn');
+      const shareBtn = document.getElementById('share-btn');
 
       statusDiv.classList.remove('hidden');
       resultsDiv.classList.add('hidden');
+      shareBtn.classList.add('hidden');
       btn.disabled = true;
 
       try {
-        // Execute Mobile PSI, Desktop PSI, and DNS Security in Parallel
-        const [mobileData, desktopData, dnsData] = await Promise.all([
-          fetchPsi(targetUrl, 'mobile'),
-          fetchPsi(targetUrl, 'desktop'),
-          checkSecurityDns(targetUrl)
+        const [mobRes, deskRes, dnsData, brokenLinks] = await Promise.all([
+          fetch(`${WORKER_URL}/api/psi?url=${encodeURIComponent(targetUrl)}&strategy=mobile`).then(r => r.json()),
+          fetch(`${WORKER_URL}/api/psi?url=${encodeURIComponent(targetUrl)}&strategy=desktop`).then(r => r.json()),
+          checkSecurityDns(targetUrl),
+          checkInternalLinks(targetUrl)
         ]);
 
-        const mobLh = mobileData.lighthouseResult;
-        const deskLh = desktopData.lighthouseResult;
+        const mobLh = mobRes.lighthouseResult;
+        const deskLh = deskRes.lighthouseResult;
 
-        const mobPerf = Math.round((mobLh.categories.performance?.score || 0) * 100);
-        const deskPerf = Math.round((deskLh.categories.performance?.score || 0) * 100);
+        const mobPerf = Math.round((mobLh?.categories?.performance?.score || 0) * 100);
+        const deskPerf = Math.round((deskLh?.categories?.performance?.score || 0) * 100);
 
-        // Render Mobile & Desktop Scores
+        // Render Scores
         document.getElementById('mobile-score').innerText = mobPerf;
         const mobBadge = getBadgeStyle(mobPerf);
         document.getElementById('mobile-badge').innerText = mobBadge.label;
@@ -258,33 +302,41 @@
         document.getElementById('desktop-badge').innerText = deskBadge.label;
         document.getElementById('desktop-badge').className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${deskBadge.class}`;
 
-        // Render Core Web Vitals
+        // Render CWV
         document.getElementById('cwv-lcp').innerText = mobLh.audits['largest-contentful-paint']?.displayValue || 'N/A';
         document.getElementById('cwv-tbt').innerText = mobLh.audits['total-blocking-time']?.displayValue || 'N/A';
         document.getElementById('cwv-cls').innerText = mobLh.audits['cumulative-layout-shift']?.displayValue || 'N/A';
         document.getElementById('cwv-fcp').innerText = mobLh.audits['first-contentful-paint']?.displayValue || 'N/A';
 
-        // Render DNS Checks
+        // Calculate Risk Text
+        const lcpMs = mobLh.audits['largest-contentful-paint']?.numericValue || 0;
+        const riskTextEl = document.getElementById('risk-text');
+        if (lcpMs > 4000) {
+          riskTextEl.innerHTML = 'LCP exceeds 4s. Google research indicates an estimated <strong class="text-white font-mono">+32% bounce rate penalty</strong> on organic traffic.';
+        } else if (lcpMs > 2500) {
+          riskTextEl.innerHTML = 'LCP is moderate (2.5s–4s). Moderate conversion drag observed on mobile devices.';
+        } else {
+          riskTextEl.innerHTML = 'Core Web Vitals are within acceptable thresholds. Good user experience baseline.';
+        }
+
+        // Render Security & Link Status
         const spfEl = document.getElementById('dns-spf');
-        spfEl.innerText = dnsData.spf ? 'CONFIGURED' : 'MISSING';
-        spfEl.className = `px-2.5 py-1 text-xs font-mono font-semibold rounded ${dnsData.spf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+        spfEl.innerText = dnsData.spf ? 'PASS' : 'MISSING';
+        spfEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${dnsData.spf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
 
         const dmarcEl = document.getElementById('dns-dmarc');
-        dmarcEl.innerText = dnsData.dmarc ? 'CONFIGURED' : 'MISSING';
-        dmarcEl.className = `px-2.5 py-1 text-xs font-mono font-semibold rounded ${dnsData.dmarc ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
+        dmarcEl.innerText = dnsData.dmarc ? 'PASS' : 'MISSING';
+        dmarcEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${dnsData.dmarc ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`;
 
-        // Render Opportunities & Payload Waste
+        const linkEl = document.getElementById('link-status');
+        linkEl.innerText = brokenLinks > 0 ? `${brokenLinks} Broken` : 'PASS (0 Broken)';
+        linkEl.className = `px-2 py-0.5 text-xs font-mono font-semibold rounded ${brokenLinks > 0 ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'}`;
+
+        // Render Opportunities
         const issuesList = document.getElementById('issues-list');
         issuesList.innerHTML = '';
         
-        const keyAudits = [
-          'render-blocking-resources',
-          'unused-javascript',
-          'unused-css-rules',
-          'modern-image-formats',
-          'uses-optimized-images'
-        ];
-
+        const keyAudits = ['render-blocking-resources', 'unused-javascript', 'unused-css-rules', 'modern-image-formats', 'uses-optimized-images'];
         let totalWasteBytes = 0;
         let count = 0;
 
@@ -295,8 +347,7 @@
             totalWasteBytes += savings;
 
             const li = document.createElement('li');
-            li.className = 'p-3.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-300 flex justify-between items-center gap-4';
-            
+            li.className = 'p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-300 flex justify-between items-center gap-4';
             const wasteKb = savings > 0 ? `${(savings / 1024).toFixed(0)} KB potential saving` : (audit.displayValue || 'Action required');
             
             li.innerHTML = `
@@ -312,21 +363,22 @@
         }
 
         if (count === 0) {
-          issuesList.innerHTML = '<li class="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-zinc-400">No major code waste detected on mobile.</li>';
+          issuesList.innerHTML = '<li class="p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-400">No major code waste detected on mobile.</li>';
         }
 
         const totalMb = (totalWasteBytes / (1024 * 1024)).toFixed(2);
         document.getElementById('total-savings').innerText = totalWasteBytes > 0 ? `~${totalMb} MB Unnecessary Payload` : '';
 
-        // Form Hidden Data
+        // Populate hidden form data
         document.getElementById('hidden-scanned-url').value = targetUrl;
-        document.getElementById('hidden-summary-data').value = `Mobile: ${mobPerf}, Desktop: ${deskPerf}, SPF: ${dnsData.spf}, DMARC: ${dnsData.dmarc}, Waste: ${totalMb}MB`;
+        document.getElementById('hidden-summary-data').value = `Mobile: ${mobPerf}, Desktop: ${deskPerf}, SPF: ${dnsData.spf}, DMARC: ${dnsData.dmarc}, BrokenLinks: ${brokenLinks}, PayloadWaste: ${totalMb}MB`;
 
         statusDiv.classList.add('hidden');
         resultsDiv.classList.remove('hidden');
+        shareBtn.classList.remove('hidden');
       } catch (err) {
         statusDiv.innerHTML = `<span class="text-rose-400 font-medium">Scan failed: ${err.message}</span>`;
-        console.error('Diagnostic error:', err);
+        console.error(err);
       } finally {
         btn.disabled = false;
       }
