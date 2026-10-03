@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Site Check — MS Labs Studio</title>
+  <!-- Tailwind CDN for quick zero-config styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-50 text-zinc-900 font-sans antialiased min-h-screen py-12 px-4">
 
+  <!-- Audit Widget Container -->
+  <main class="max-w-2xl mx-auto bg-white border border-zinc-200 rounded-xl p-6 sm:p-8 shadow-sm">
+    
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 bg-zinc-100 border border-zinc-200 rounded-full text-xs font-medium text-zinc-600 mb-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        Instant Diagnostic
+      </div>
+      <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">Free Site Speed & Accessibility Scan</h1>
+      <p class="text-sm text-zinc-500 mt-1">Get instant performance metrics and WCAG compliance feedback powered by Google Lighthouse.</p>
+    </div>
+
+    <!-- URL Input Form -->
+    <form id="audit-form" class="flex flex-col sm:flex-row gap-3 mb-6">
+      <input 
+        type="url" 
+        id="site-url" 
+        placeholder="https://yourwebsite.com" 
+        required 
+        class="flex-1 px-4 py-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:bg-white transition-all"
+      />
+      <button 
+        type="submit" 
+        id="audit-btn" 
+        class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+      >
+        <span>Run Scan</span>
+      </button>
+    </form>
+
+    <!-- Loading State -->
+    <div id="audit-status" class="hidden p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-sm text-zinc-600 mb-6 flex items-center gap-3">
+      <svg class="animate-spin h-4 w-4 text-zinc-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>Analyzing performance and accessibility (~10 seconds)...</span>
+    </div>
+
+    <!-- Results Dashboard -->
+    <div id="audit-results" class="hidden space-y-6">
+      
+      <!-- Scores Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-center">
+          <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Performance</span>
+          <div id="perf-score" class="text-3xl font-bold text-zinc-900 my-1">--</div>
+          <span id="perf-badge" class="inline-block px-2 py-0.5 text-xs font-medium rounded">Pending</span>
+        </div>
+        
+        <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-lg text-center">
+          <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Accessibility</span>
+          <div id="a11y-score" class="text-3xl font-bold text-zinc-900 my-1">--</div>
+          <span id="a11y-badge" class="inline-block px-2 py-0.5 text-xs font-medium rounded">Pending</span>
+        </div>
+      </div>
+
+      <!-- Key Issues -->
+      <div>
+        <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Key Issues Identified</h3>
+        <ul id="issues-list" class="space-y-2"></ul>
+      </div>
+
+      <!-- Lead Capture Form (Web3Forms) -->
+      <div class="pt-6 border-t border-dashed border-zinc-200 bg-zinc-50/50 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 p-6 sm:p-8 rounded-b-xl">
+        <div class="text-center mb-4">
+          <h4 class="text-sm font-semibold text-zinc-900">Want the prioritized fix breakdown?</h4>
+          <p class="text-xs text-zinc-500 mt-0.5">Enter your email and Yash will send three specific recommendations within 1 business day.</p>
+        </div>
+
+        <form action="https://api.web3forms.com/submit" method="POST" class="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
+          <input type="hidden" name="scanned_url" id="hidden-scanned-url" value="" />
+          <input type="hidden" name="scores" id="hidden-scores" value="" />
+          
+          <input 
+            type="email" 
+            name="email" 
+            placeholder="name@company.com" 
+            required 
+            class="flex-1 px-3.5 py-2 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          />
+          <button 
+            type="submit" 
+            class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+          >
+            Get Fix Plan
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function getScoreBadge(score) {
+      if (score >= 90) return { label: 'Good', class: 'bg-emerald-100 text-emerald-800' };
+      if (score >= 50) return { label: 'Needs Work', class: 'bg-amber-100 text-amber-800' };
+      return { label: 'Poor', class: 'bg-rose-100 text-rose-800' };
+    }
+
+    document.getElementById('audit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const targetUrl = document.getElementById('site-url').value;
+      const statusDiv = document.getElementById('audit-status');
+      const resultsDiv = document.getElementById('audit-results');
+      const btn = document.getElementById('audit-btn');
+
+      statusDiv.classList.remove('hidden');
+      resultsDiv.classList.add('hidden');
+      btn.disabled = true;
+
+      try {
+        const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=PERFORMANCE&category=ACCESSIBILITY&strategy=mobile`;
+        
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('API scan failed');
+        const data = await res.json();
+
+        const lighthouse = data.lighthouseResult;
+        const perfScore = Math.round((lighthouse.categories.performance?.score || 0) * 100);
+        const a11yScore = Math.round((lighthouse.categories.accessibility?.score || 0) * 100);
+
+        // Render Performance
+        document.getElementById('perf-score').innerText = `${perfScore}/100`;
+        const perfBadge = getScoreBadge(perfScore);
+        const perfBadgeEl = document.getElementById('perf-badge');
+        perfBadgeEl.innerText = perfBadge.label;
+        perfBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${perfBadge.class}`;
+
+        // Render Accessibility
+        document.getElementById('a11y-score').innerText = `${a11yScore}/100`;
+        const a11yBadge = getScoreBadge(a11yScore);
+        const a11yBadgeEl = document.getElementById('a11y-badge');
+        a11yBadgeEl.innerText = a11yBadge.label;
+        a11yBadgeEl.className = `inline-block px-2 py-0.5 text-xs font-medium rounded ${a11yBadge.class}`;
+
+        // Render Issues
+        const issuesList = document.getElementById('issues-list');
+        issuesList.innerHTML = '';
+        
+        const keyAudits = ['render-blocking-resources', 'unused-javascript', 'color-contrast', 'image-alt'];
+        let foundCount = 0;
+
+        for (const key of keyAudits) {
+          const audit = lighthouse.audits[key];
+          if (audit && audit.score !== null && audit.score < 0.9) {
+            const li = document.createElement('li');
+            li.className = 'p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 flex flex-col gap-1';
+            li.innerHTML = `<span class="font-medium text-zinc-900">${audit.title}</span><span class="text-zinc-500">${audit.displayValue || audit.description}</span>`;
+            issuesList.appendChild(li);
+            foundCount++;
+            if (foundCount >= 3) break;
+          }
+        }
+
+        if (foundCount === 0) {
+          issuesList.innerHTML = '<li class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-600">No critical headline performance issues detected.</li>';
+        }
+
+        // Hidden Inputs
+        document.getElementById('hidden-scanned-url').value = targetUrl;
+        document.getElementById('hidden-scores').value = `Perf: ${perfScore}/100, A11y: ${a11yScore}/100`;
+
+        statusDiv.classList.add('hidden');
+        resultsDiv.classList.remove('hidden');
+      } catch (err) {
+        statusDiv.innerHTML = '<span class="text-rose-600 font-medium">Scan failed. Please double-check the URL and try again.</span>';
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
