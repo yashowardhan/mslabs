@@ -1,0 +1,44 @@
+{
+  "agency-partner.html": {
+    "forms": 1,
+    "scripts": 2,
+    "avatar_used": false,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  },
+  "development.html": {
+    "forms": 1,
+    "scripts": 2,
+    "avatar_used": false,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  },
+  "index.html": {
+    "forms": 1,
+    "scripts": 3,
+    "avatar_used": true,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  },
+  "privacy.html": {
+    "forms": 0,
+    "scripts": 1,
+    "avatar_used": false,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  },
+  "terms.html": {
+    "forms": 0,
+    "scripts": 1,
+    "avatar_used": false,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  },
+  "wordpress-care.html": {
+    "forms": 1,
+    "scripts": 2,
+    "avatar_used": false,
+    "mailto_fallback": true,
+    "paypal_or_stripe_link": false
+  }
+}
