@@ -262,7 +262,7 @@
     try {
       const baseUrl = new URL(domain).origin;
       // Syntax typo fix: removed stray token
-      const testLinks = [baseUrl, `${baseUrl}/about`, `${baseUrl}/contact`, `${baseUrl}/services` philosophy];
+      const testLinks = [baseUrl, `${baseUrl}/about`, `${baseUrl}/contact`, `${baseUrl}/services`];
       const res = await fetch(`${WORKER_URL}/api/check-links`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
