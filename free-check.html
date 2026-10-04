@@ -10,7 +10,113 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
-    /* Fixed High-Contrast Layout Tokens */
+    /* -------------------------------------------------------------
+       HERO & FORM DARK THEME ENCAPSULATION
+    ------------------------------------------------------------- */
+    .check-hero {
+      background-color: #101722 !important;
+      color: #ffffff !important;
+      padding: 3.5rem 0 4.5rem 0 !important;
+    }
+    .check-hero .eyebrow {
+      color: #2dd4bf !important;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.8125rem;
+      margin-bottom: 0.75rem;
+    }
+    .check-hero h1 {
+      color: #ffffff !important;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .check-hero .hero-lead {
+      color: #94a3b8 !important;
+      font-size: 1.125rem;
+      line-height: 1.6;
+      max-width: 680px;
+      margin-bottom: 2rem;
+    }
+
+    /* Form Container Box */
+    .check-form {
+      background: #17202e !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 16px !important;
+      padding: 2rem !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      max-width: 680px;
+    }
+    .check-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 640px) {
+      .check-form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .check-form .field-full {
+      grid-column: 1 / -1;
+    }
+    .check-form label {
+      display: block;
+      color: #f1f5f9 !important;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .check-form input[type="text"],
+    .check-form input[type="email"],
+    .check-form input[type="url"] {
+      width: 100%;
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      color: #ffffff !important;
+      padding: 0.75rem 1rem !important;
+      border-radius: 8px !important;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+    .check-form input:focus {
+      outline: none;
+      border-color: #2dd4bf !important;
+      box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
+    }
+    .check-form .check-note {
+      color: #94a3b8 !important;
+      font-size: 0.8125rem;
+      margin-top: 0.375rem;
+      display: block;
+    }
+    .check-form-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Status Indicator */
+    .form-status {
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+    .form-status.is-loading { color: #38bdf8 !important; font-weight: 600; }
+    .form-status.is-error   { color: #f87171 !important; font-weight: 600; }
+    .form-status.is-ok      { color: #34d399 !important; font-weight: 600; }
+
+    /* -------------------------------------------------------------
+       RESULTS SECTION (LIGHT BAND HIGH CONTRAST)
+    ------------------------------------------------------------- */
+    .check-results {
+      background-color: #f8f7f4 !important;
+      padding: 4rem 0 !important;
+    }
     .score-card-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -18,7 +124,7 @@
       margin-bottom: 2rem;
     }
     .metric-card {
-      background: #101722;
+      background: #101722 !important;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 1.25rem;
@@ -45,12 +151,13 @@
       margin-top: 0.25rem;
     }
 
-    /* High-Contrast Card Fixes for Light Section */
+    /* Diagnostic Cards Fix */
     .check-card {
       background: #ffffff !important;
       border: 1px solid #e2e8f0 !important;
       border-radius: 12px;
       padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .check-card h3 {
       color: #0f172a !important;
@@ -130,7 +237,7 @@
   </header>
 
   <main id="main">
-    <!-- Hero & Form -->
+    <!-- Dark Hero & Form Section -->
     <section class="check-hero">
       <div class="container">
         <p class="eyebrow">Free site check · No obligation</p>
@@ -150,16 +257,16 @@
             <div class="field field-full">
               <label for="check-url">Website address</label>
               <input id="check-url" name="url" type="url" inputmode="url" placeholder="https://example.com" required maxlength="2048" aria-describedby="url-note">
-              <p class="check-note" id="url-note">Only the public website is checked. No login or admin access is requested.</p>
+              <span class="check-note" id="url-note">Only the public website is checked. No login or admin access is requested.</span>
             </div>
             
-            <!-- Honeypot Trap -->
+            <!-- Honeypot -->
             <div class="field hp" style="display:none;" aria-hidden="true">
               <label for="company">Company</label>
               <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
             </div>
 
-            <!-- Turnstile Verification -->
+            <!-- Turnstile Widget -->
             <div class="field field-full">
               <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-action="site-check"></div>
             </div>
@@ -170,12 +277,12 @@
             <span class="check-note">Results are based on what is publicly accessible.</span>
           </div>
 
-          <p class="form-status" id="check-status" role="status" aria-live="polite" style="margin-top: 1rem;"></p>
+          <p class="form-status" id="check-status" role="status" aria-live="polite"></p>
         </form>
       </div>
     </section>
 
-    <!-- Audit Results Section -->
+    <!-- Report Section (Hidden until scan finishes) -->
     <section class="band band-alt check-results" id="results" style="display: none;" aria-live="polite">
       <div class="container">
         <div class="section-head">
@@ -184,15 +291,15 @@
           <p id="results-subtitle" style="font-family: monospace; color: #475569; margin-top: 0.25rem; font-weight: 600;"></p>
         </div>
 
-        <!-- 1. Scores Grid -->
+        <!-- Section 1: Scores Grid -->
         <p class="eyebrow" style="margin-bottom: 0.75rem;">1. Performance & Compliance</p>
         <div class="score-card-container" id="score-grid"></div>
 
-        <!-- 2. Core Web Vitals Grid -->
+        <!-- Section 2: Core Web Vitals Grid -->
         <p class="eyebrow" style="margin-bottom: 0.75rem;">2. Core Web Vitals (Mobile)</p>
         <div class="score-card-container" id="vitals-grid"></div>
 
-        <!-- 3. High-Contrast Diagnostics Grid -->
+        <!-- Section 3: Diagnostic Cards -->
         <div class="check-columns">
           <article class="check-card">
             <h3>What I would look at first</h3>
@@ -242,7 +349,7 @@
   <script>
     (function () {
       'use strict';
-      var API_BASE = 'https://mslabs-proxy.yashkaushikbits19.workers.dev';
+      var API_BASE = 'https://mslabs-proxy.mslabsstudio.workers.dev';
       var form = document.getElementById('check-form');
       var status = document.getElementById('check-status');
       var submit = document.getElementById('check-submit');
@@ -292,7 +399,7 @@
       }
 
       function renderReport(report) {
-        // Scores Grid
+        // Render Scores Grid
         var scoreGrid = document.getElementById('score-grid');
         scoreGrid.replaceChildren(
           createMetricCard('Mobile Performance', report.scores.mobilePerf, '/ 100'),
@@ -301,7 +408,7 @@
           createMetricCard('SEO Baseline', report.scores.seo, '/ 100')
         );
 
-        // Web Vitals Grid
+        // Render Web Vitals Grid
         var vitalsGrid = document.getElementById('vitals-grid');
         vitalsGrid.replaceChildren(
           createMetricCard('LCP (Largest Paint)', report.vitals.lcp, 'Target: < 2.5s'),
@@ -313,7 +420,7 @@
         document.getElementById('results-title').textContent = 'Website health snapshot';
         document.getElementById('results-subtitle').textContent = report.url;
 
-        // High-Contrast Opportunities List
+        // Render Opportunities
         var opportunities = document.getElementById('opportunities');
         opportunities.replaceChildren();
         (report.opportunities || []).forEach(function (item) {
@@ -337,7 +444,7 @@
           opportunities.appendChild(empty);
         }
 
-        // High-Contrast Links List
+        // Render Links
         var linkSummary = document.getElementById('link-summary');
         var linkList = document.getElementById('links');
         linkList.replaceChildren();
@@ -380,7 +487,6 @@
         }
       }
 
-      // Form Handler
       form.addEventListener('submit', async function (event) {
         event.preventDefault();
         var name = form.elements.name.value.trim();
@@ -408,7 +514,7 @@
           var targetUrl = rawUrl.match(/^https?:\/\//i) ? rawUrl : 'https://' + rawUrl;
           var hostname = new URL(targetUrl).hostname;
 
-          // Parallel Audits
+          // Parallel Network Audits
           var [mobRes, deskRes, linksRes] = await Promise.all([
             safeFetchJson(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=mobile'),
             safeFetchJson(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=desktop'),
@@ -423,7 +529,7 @@
             })
           ]);
 
-          // Submit Lead Email Payload to Worker
+          // Submit Lead Payload to Worker
           fetch(API_BASE + '/api/lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -480,7 +586,7 @@
         }
       });
 
-      // Fixed Copy Link Handler
+      // Share Link Button
       document.getElementById('share-report').addEventListener('click', async function () {
         var urlInput = form.elements.url.value.trim();
         if (!urlInput) return;
@@ -498,7 +604,7 @@
         }
       });
 
-      // Query param auto-fill
+      // Auto-fill query parameter
       var params = new URLSearchParams(window.location.search);
       var sharedUrl = params.get('url');
       if (sharedUrl) form.elements.url.value = sharedUrl;
