@@ -9,6 +9,54 @@
   <meta name="theme-color" content="#101722">
   <link rel="stylesheet" href="styles.css">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    /* Card & Loading Layout Fixes */
+    .score-card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: #17202e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .metric-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      font-family: monospace;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+    .is-loading {
+      color: #38bdf8;
+      font-weight: 500;
+    }
+    .is-error {
+      color: #f87171;
+      font-weight: 500;
+    }
+    .is-ok {
+      color: #34d399;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -30,7 +78,7 @@
   </header>
 
   <main id="main">
-    <!-- Hero & Form -->
+    <!-- Hero & Check Form -->
     <section class="check-hero">
       <div class="container">
         <p class="eyebrow">Free site check · No obligation</p>
@@ -69,13 +117,15 @@
             <button class="btn btn-primary" type="submit" id="check-submit">Run my free check</button>
             <span class="check-note">Results are based on what is publicly accessible.</span>
           </div>
-          <p class="form-status" id="check-status" role="status" aria-live="polite"></p>
+
+          <!-- Real-Time Status Feedback Indicator -->
+          <p class="form-status" id="check-status" role="status" aria-live="polite" style="margin-top: 1rem;"></p>
         </form>
       </div>
     </section>
 
-    <!-- Report Section -->
-    <section class="band band-alt check-results" id="results" aria-live="polite">
+    <!-- Report Section (Hidden until scan finishes) -->
+    <section class="band band-alt check-results" id="results" style="display: none;" aria-live="polite">
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Your report</p>
@@ -85,13 +135,13 @@
 
         <!-- Section 1: Scores Grid -->
         <p class="eyebrow" style="margin-bottom: 0.75rem;">1. Performance & Compliance</p>
-        <div class="score-grid" id="score-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
+        <div class="score-card-container" id="score-grid"></div>
 
         <!-- Section 2: Core Web Vitals Grid -->
         <p class="eyebrow" style="margin-bottom: 0.75rem;">2. Core Web Vitals (Mobile)</p>
-        <div class="score-grid" id="vitals-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;"></div>
+        <div class="score-card-container" id="vitals-grid"></div>
 
-        <!-- Section 3: Diagnostic Breakdown -->
+        <!-- Section 3: Diagnostic Cards -->
         <div class="check-columns">
           <article class="check-card">
             <h3>What I would look at first</h3>
@@ -104,8 +154,8 @@
           </article>
         </div>
 
-        <!-- Action Row -->
-        <div class="share-row" style="margin-top: 2rem; display: flex; flex-wrap: wrap; items-center; gap: 1rem;">
+        <!-- Share Actions -->
+        <div class="share-row" style="margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;">
           <button class="btn btn-ghost" id="share-report" type="button">Copy report link</button>
           <a class="btn btn-primary" href="index.html#contact" data-interest="check">Talk about the findings</a>
           <span class="check-note">The shared link contains the website address only and starts a fresh check.</span>
@@ -164,19 +214,18 @@
         status.className = 'form-status' + (kind ? ' is-' + kind : '');
       }
 
-      function createCard(label, value, subtext) {
+      function createMetricCard(label, value, subtext) {
         var card = document.createElement('article');
-        card.className = 'score-card';
-        card.style.cssText = 'display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: #17202e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;';
+        card.className = 'metric-card';
 
         var labelEl = document.createElement('span');
-        labelEl.style.cssText = 'font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;';
+        labelEl.className = 'metric-label';
         labelEl.textContent = label;
 
         var valueEl = document.createElement('strong');
+        valueEl.className = 'metric-value';
         var valNum = typeof value === 'number' ? value : parseInt(value, 10);
-        var valColor = isNaN(valNum) ? '#ffffff' : (valNum >= 90 ? '#34d399' : (valNum >= 50 ? '#fbbf24' : '#f87171'));
-        valueEl.style.cssText = 'font-size: 1.75rem; font-weight: 700; color: ' + valColor + '; font-family: monospace;';
+        valueEl.style.color = isNaN(valNum) ? '#ffffff' : (valNum >= 90 ? '#34d399' : (valNum >= 50 ? '#fbbf24' : '#f87171'));
         valueEl.textContent = (value == null || value === '') ? '—' : String(value);
 
         card.appendChild(labelEl);
@@ -184,7 +233,7 @@
 
         if (subtext) {
           var subEl = document.createElement('small');
-          subEl.style.cssText = 'font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;';
+          subEl.className = 'metric-sub';
           subEl.textContent = subtext;
           card.appendChild(subEl);
         }
@@ -192,28 +241,28 @@
       }
 
       function renderReport(report) {
-        // Render Scores Grid
+        // Scores Grid
         var scoreGrid = document.getElementById('score-grid');
         scoreGrid.replaceChildren(
-          createCard('Mobile Performance', report.scores.mobilePerf, '/ 100'),
-          createCard('Desktop Performance', report.scores.desktopPerf, '/ 100'),
-          createCard('Accessibility', report.scores.accessibility, '/ 100'),
-          createCard('SEO Baseline', report.scores.seo, '/ 100')
+          createMetricCard('Mobile Performance', report.scores.mobilePerf, '/ 100'),
+          createMetricCard('Desktop Performance', report.scores.desktopPerf, '/ 100'),
+          createMetricCard('Accessibility', report.scores.accessibility, '/ 100'),
+          createMetricCard('SEO Baseline', report.scores.seo, '/ 100')
         );
 
-        // Render Web Vitals Grid
+        // Core Web Vitals Grid
         var vitalsGrid = document.getElementById('vitals-grid');
         vitalsGrid.replaceChildren(
-          createCard('LCP (Largest Paint)', report.vitals.lcp, 'Target: < 2.5s'),
-          createCard('TBT (Blocking Time)', report.vitals.tbt, 'Target: < 200ms'),
-          createCard('CLS (Layout Shift)', report.vitals.cls, 'Target: < 0.1'),
-          createCard('FCP (First Paint)', report.vitals.fcp, 'Target: < 1.8s')
+          createMetricCard('LCP (Largest Paint)', report.vitals.lcp, 'Target: < 2.5s'),
+          createMetricCard('TBT (Blocking Time)', report.vitals.tbt, 'Target: < 200ms'),
+          createMetricCard('CLS (Layout Shift)', report.vitals.cls, 'Target: < 0.1'),
+          createMetricCard('FCP (First Paint)', report.vitals.fcp, 'Target: < 1.8s')
         );
 
         document.getElementById('results-title').textContent = 'Website health snapshot';
         document.getElementById('results-subtitle').textContent = report.url;
 
-        // Render Opportunities
+        // Opportunities
         var opportunities = document.getElementById('opportunities');
         opportunities.replaceChildren();
         (report.opportunities || []).forEach(function (item) {
@@ -236,7 +285,7 @@
           opportunities.appendChild(empty);
         }
 
-        // Render Links
+        // Links
         var linkSummary = document.getElementById('link-summary');
         var linkList = document.getElementById('links');
         linkList.replaceChildren();
@@ -246,7 +295,7 @@
 
         (linkData.links || []).forEach(function (item) {
           var li = document.createElement('li');
-          li.style.cssText = 'margin-bottom: 0.5rem; font-size: 0.8125rem; font-family: monospace; display: flex; justify-content: space-between; items-center;';
+          li.style.cssText = 'margin-bottom: 0.5rem; font-size: 0.8125rem; font-family: monospace; display: flex; justify-content: space-between; align-items: center;';
           
           var urlSpan = document.createElement('span');
           urlSpan.style.cssText = 'color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;';
@@ -256,19 +305,19 @@
           var isOk = !item.broken && !item.unverified;
           badge.style.cssText = 'padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; ' + 
             (isOk ? 'background: rgba(52,211,153,0.15); color: #34d399;' : 'background: rgba(248,113,113,0.15); color: #f87171;');
-          badge.textContent = isOk ? 'OK 200' : (item.status ? 'HTTP ' + item.status : 'FAILED');
+          badge.textContent = isOk ? 'OK 200' : (item.status ? 'HTTP ' + item.status : 'UNVERIFIED');
 
           li.appendChild(urlSpan);
           li.appendChild(badge);
           linkList.appendChild(li);
         });
 
-        results.classList.add('is-visible');
+        // Show Results Section
         results.style.display = 'block';
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // Form Handler
+      // Form Submit Event Handler
       form.addEventListener('submit', async function (event) {
         event.preventDefault();
         var name = form.elements.name.value.trim();
@@ -278,7 +327,7 @@
         var tokenField = form.querySelector('[name="cf-turnstile-response"]');
         var token = tokenField ? tokenField.value : '';
 
-        if (company) return; // Silent rejection for bot honeypot
+        if (company) return; // Silent honeypot drop
         if (!name || !form.elements.email.validity.valid || !email) {
           setStatus('Please enter your name and a valid email address.', 'error');
           return;
@@ -289,16 +338,17 @@
         }
 
         submit.disabled = true;
-        setStatus('Checking site performance & link integrity... (~8s)', '');
+        results.style.display = 'none'; // Hide report while running scan
+        setStatus('⏳ Analyzing website performance, accessibility & links (~8s)...', 'loading');
 
         try {
           var targetUrl = rawUrl.match(/^https?:\/\//i) ? rawUrl : 'https://' + rawUrl;
           var hostname = new URL(targetUrl).hostname;
 
-          // Parallel Fetch Execution
+          // Parallel Network Requests
           var [mobRes, deskRes, linksRes] = await Promise.all([
-            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=mobile').then(function(r) { return r.json(); }).catch(function() { return {}; }),
-            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=desktop').then(function(r) { return r.json(); }).catch(function() { return {}; }),
+            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=mobile').then(function(r) { return r.json(); }),
+            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=desktop').then(function(r) { return r.json(); }),
             fetch(API_BASE + '/api/check-links', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -307,17 +357,20 @@
                 baseHost: hostname,
                 turnstileToken: token
               })
-            }).then(function(r) { return r.json(); }).catch(function() { return {}; })
+            }).then(function(r) { return r.json(); }).catch(function() { return { results: [] }; })
           ]);
 
-          // Send Lead Data to Worker in Background
+          // Send Lead Payload
           fetch(API_BASE + '/api/lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: name, email: email, url: targetUrl })
           }).catch(function() {});
 
-          // Map Diagnostics Output
+          if (mobRes.error) {
+            throw new Error(mobRes.error);
+          }
+
           var opportunitiesList = [];
           if (mobRes.audits) {
             Object.keys(mobRes.audits).forEach(function(key) {
@@ -358,7 +411,7 @@
             if (widget) window.turnstile.reset(widget);
           }
         } catch (error) {
-          setStatus('Audit failed: ' + (error.message || 'Could not complete request'), 'error');
+          setStatus('Check failed: ' + (error.message || 'Could not reach server'), 'error');
         } finally {
           submit.disabled = false;
         }
@@ -378,7 +431,7 @@
         }
       });
 
-      // Pre-fill URL if query parameter exists
+      // Auto-fill URL query param
       var params = new URLSearchParams(window.location.search);
       var sharedUrl = params.get('url');
       if (sharedUrl) form.elements.url.value = sharedUrl;
