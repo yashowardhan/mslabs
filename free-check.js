@@ -4,12 +4,16 @@
   // Use a custom domain (e.g. https://api.mslabsstudio.com) so WAF rules and the Cache API work. workers.dev supports neither.
   var API_BASE = 'https://mslabs-proxy.yashkaushikbits19.workers.dev';
   var CONTACT_URL = 'index.html'; // swap for your Cal.com/Calendly link if you have one
+  var SHARE_BASE = 'https://mslabsstudio.com/free-check.html';
   var CLIENT_TIMEOUT_MS = 90000;
+  var COMPARE_TIMEOUT_MS = 75000;
+  var LCP_TARGET_S = 2.5;
+  var LOSS_PER_SEC_LOW = 0.03, LOSS_PER_SEC_HIGH = 0.07, LOSS_CAP = 0.35;
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $('check-form'), statusEl = $('check-status'), submitBtn = $('check-submit');
   var progress = $('progress'), results = $('results');
-  var state, steps;
+  var state = {};
 
   /* ---------- tiny helpers ---------- */
   function el(tag, cls, text) {
@@ -22,12 +26,31 @@
     statusEl.textContent = msg || '';
     statusEl.className = 'form-status' + (kind ? ' is-' + kind : '');
   }
+
+  // Funnel events: audit_started, audit_completed, cta_clicked, pdf_saved, report_shared (+ a few extras).
+  // Works with gtag.js, GTM (dataLayer) and Plausible. Analytics must never break the tool.
   function track(name, props) {
+    props = props || {};
     try {
-      if (window.plausible) window.plausible(name, { props: props || {} });
-      if (window.gtag) window.gtag('event', name, props || {});
-    } catch (e) { /* analytics must never break the tool */ }
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', name, props);                    // gtag also writes to dataLayer
+      } else if (Array.isArray(window.dataLayer)) {
+        var ev = { event: name }; for (var k in props) ev[k] = props[k];
+        window.dataLayer.push(ev);
+      }
+      if (typeof window.plausible === 'function') window.plausible(name, { props: props });
+    } catch (e) { /* ignore */ }
   }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2800);
+  }
+
   function rateScore(v) { return v == null ? '' : v >= 90 ? 'good' : v >= 50 ? 'ok' : 'poor'; }
   function rateVital(key, v) {
     var t = { lcp: [2500, 4000], tbt: [200, 600], cls: [0.1, 0.25], fcp: [1800, 3000] }[key];
@@ -42,11 +65,11 @@
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
 
-  /* ---------- rendering ---------- */
+  /* ---------- rendering: cards ---------- */
   function card(label, value, sub, tone, pending) {
     var c = el('article', 'metric-card' + (pending ? ' is-skeleton' : ''));
     c.appendChild(el('span', 'metric-label', label));
-    if (pending) {                       // shimmer placeholder, same footprint as the real card
+    if (pending) {
       c.setAttribute('aria-busy', 'true');
       c.appendChild(el('span', 'skel skel-value'));
       c.appendChild(el('span', 'skel skel-sub'));
@@ -74,7 +97,6 @@
     $('ring').setAttribute('aria-label', 'Analysis in progress');
     $('results-title').textContent = 'Analyzing ' + host + '…';
     $('results-subtitle').textContent = 'Results fill in below as each test finishes.';
-    $('summary-cta').hidden = true;
   }
 
   function scoreCard(label, getter, sub, errKey) {
@@ -107,16 +129,32 @@
     );
   }
 
-  function fixItem(f) {
+  /* ---------- rendering: findings ---------- */
+  function fixItem(f, num) {
     var li = el('li', 'fix-item');
+    var tags = el('div', 'fix-tags');
+    var effort = f.effort === 'big' ? 'big' : 'quick';
+    tags.appendChild(el('span', 'badge ' + effort, effort === 'big' ? 'Bigger Job' : 'Quick Win'));
+    tags.appendChild(el('span', 'badge ' + f.sev, f.sev === 'high' ? 'Fix first' : f.sev === 'med' ? 'Worth fixing' : 'Nice to have'));
+    li.appendChild(tags);
     var t = el('div', 'fix-title');
-    t.appendChild(el('span', 'badge ' + f.sev, f.sev === 'high' ? 'Fix first' : f.sev === 'med' ? 'Worth fixing' : 'Nice to have'));
+    if (num) t.appendChild(el('span', 'fix-num', String(num)));
     t.appendChild(el('span', '', f.title));
     li.appendChild(t);
     li.appendChild(el('p', 'fix-plain', f.plain));
     return li;
   }
 
+  function renderFindings(r) {
+    var f = r.findings || [], top = $('top-fixes'), more = $('findings-more');
+    top.replaceChildren(); more.replaceChildren();
+    if (!f.length) top.appendChild(el('li', 'fix-plain', 'No significant issues detected in the automated checks.'));
+    f.slice(0, 3).forEach(function (x, i) { top.appendChild(fixItem(x, i + 1)); });
+    if (f.length > 3) f.slice(3).forEach(function (x) { more.appendChild(fixItem(x)); });
+    else more.appendChild(el('li', 'fix-plain', 'No additional findings.'));
+  }
+
+  /* ---------- rendering: technical details ---------- */
   function row(label, ok, note) {
     var li = el('li', 'check-row');
     var left = el('div', '');
@@ -129,11 +167,10 @@
 
   function renderDetails() {
     var p = state.page, h = state.headers, files = state.files || {};
-    var basics = $('basics'), hl = $('headers');
-    basics.replaceChildren(); hl.replaceChildren();
+    var basics = $('basics'), hl = $('headers'), lg = $('leadgen');
+    basics.replaceChildren(); hl.replaceChildren(); lg.replaceChildren();
     if (state.pageError) {
-      basics.appendChild(el('li', 'fix-plain', state.pageError));
-      hl.appendChild(el('li', 'fix-plain', state.pageError));
+      [basics, hl, lg].forEach(function (u) { u.appendChild(el('li', 'fix-plain', state.pageError)); });
     } else if (p && !p.notHtml) {
       basics.append(
         row('HTTPS (secure connection)', p.https),
@@ -147,8 +184,36 @@
         row('robots.txt', files.robots == null ? null : files.robots),
         row('sitemap.xml', files.sitemap == null ? null : files.sitemap)
       );
+      var ga = [];
+      if (p.hasGA) ga.push('Google Analytics'); if (p.hasGTM) ga.push('Tag Manager');
+      var contact = [];
+      if (p.forms) contact.push(p.forms + ' form' + (p.forms > 1 ? 's' : ''));
+      if (p.mailto) contact.push('email link'); if (p.tel) contact.push('tap-to-call');
+      lg.append(
+        row('Google Analytics / Tag Manager', !!(p.hasGA || p.hasGTM), ga.length ? ga.join(' + ') + ' detected' : 'Lets you see where leads come from'),
+        row('Contact form, email or phone link', !!(p.forms || p.mailto || p.tel), contact.length ? contact.join(', ') : 'Gives ready buyers a way to reach you')
+      );
+      if (p.isWordPress) {
+        var li = el('li', 'check-row'), d = el('div', '');
+        d.appendChild(document.createTextNode('WordPress detected'));
+        var parts = [];
+        if (p.wpTheme) parts.push('Theme: ' + p.wpTheme);
+        if (p.builders && p.builders.length) parts.push('Builder: ' + p.builders.join(', '));
+        if (p.wpPlugins && p.wpPlugins.length) parts.push('Plugins: ' + p.wpPlugins.join(', '));
+        if (parts.length) d.appendChild(el('small', '', parts.join(' · ')));
+        li.appendChild(d);
+        li.appendChild(el('span', 'badge-warn', 'Detected'));
+        lg.appendChild(li);
+      }
     } else if (!p) {
-      skeleton(basics, 6); skeleton(hl, 5);
+      skeleton(basics, 6); skeleton(hl, 5); skeleton(lg, 4);
+    }
+    if (state.mail) {
+      var mm = state.mail;
+      lg.append(
+        row('SPF record (who may send your email)', mm.spf, 'Checked on ' + mm.domain),
+        row('DMARC record (protects your email name)', mm.dmarc, 'Checked on _dmarc.' + mm.domain)
+      );
     }
     if (h) {
       hl.append(
@@ -196,12 +261,92 @@
     }
   }
 
+  /* ---------- business impact estimator ---------- */
+  function lcpInfo() {
+    var m = state.mobile;
+    if (!m) return null;
+    if (typeof m.fieldLcpMs === 'number') return { sec: m.fieldLcpMs / 1000, field: true };
+    var lab = m.metrics && m.metrics.lcp && m.metrics.lcp.value;
+    return typeof lab === 'number' ? { sec: lab / 1000, field: false } : null;
+  }
+
+  function fmtNum(n) { return n < 10 ? (Math.round(n * 10) / 10).toString() : Math.round(n).toLocaleString(); }
+  function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function renderImpact() {
+    var num = $('impact-lcp'), verdict = $('impact-verdict'), result = $('impact-result'), badge = $('impact-badge');
+    num.className = 'impact-num';
+    var info = lcpInfo();
+    if (!info) {
+      badge.hidden = true; result.textContent = '';
+      if (state.mobileError) { num.textContent = 'n/a'; verdict.textContent = state.mobileError; }
+      else { num.textContent = '…'; verdict.textContent = 'Measuring your load time…'; }
+      return;
+    }
+    num.textContent = info.sec.toFixed(1) + ' s';
+    num.classList.add(info.sec <= 2.5 ? 'good' : info.sec <= 4 ? 'ok' : 'poor');
+    badge.hidden = false;
+    badge.className = 'src-badge' + (info.field ? ' field' : '');
+    badge.textContent = info.field ? 'Based on real Chrome visitors' : 'Based on slow mobile simulation';
+
+    var delay = Math.max(0, info.sec - LCP_TARGET_S);
+    if (delay <= 0) {
+      verdict.textContent = 'Your main content appears within Google\'s 2.5 s target, so we don\'t estimate a speed penalty. Nice work.';
+      result.textContent = '';
+      return;
+    }
+    var rLow = Math.min(LOSS_PER_SEC_LOW * delay, LOSS_CAP), rHigh = Math.min(LOSS_PER_SEC_HIGH * delay, LOSS_CAP);
+    var pLow = Math.round(rLow * 100), pHigh = Math.round(rHigh * 100);
+    verdict.textContent = 'That is ' + delay.toFixed(1) + ' s past Google\'s 2.5 s target. Slow pages commonly lose roughly ' + pLow + '–' + pHigh + '% of conversions.';
+
+    var V = parseFloat($('imp-visitors').value), C = parseFloat($('imp-conv').value), D = parseFloat($('imp-value').value);
+    if (V > 0 && C > 0) {
+      var leads = V * C / 100, lo = leads * rLow, hi = leads * rHigh;
+      var txt = 'Roughly ' + fmtNum(lo) + '–' + fmtNum(hi) + ' leads lost per month';
+      if (D > 0) txt += ' (about ' + fmtMoney(lo * D) + '–' + fmtMoney(hi * D) + ' per month)';
+      result.textContent = txt + '.';
+    } else {
+      result.textContent = 'Add your visitors and conversion rate below for a monthly estimate.';
+    }
+  }
+
+  /* ---------- filmstrip ---------- */
+  function renderFilmstrip() {
+    var wrap = $('filmstrip-wrap'), ol = $('filmstrip');
+    var fs = state.mobile && state.mobile.filmstrip;
+    ol.replaceChildren();
+    if (!fs || !fs.length) { wrap.hidden = true; return; }
+    var used = {}, idxs = [];
+    [500, 1000, 2000, 3000].forEach(function (target) {          // closest frame to each key moment
+      var best = -1, bestD = Infinity;
+      fs.forEach(function (fr, i) { var d = Math.abs(fr.timing - target); if (d < bestD && !used[i]) { bestD = d; best = i; } });
+      if (best >= 0) { used[best] = true; idxs.push(best); }
+    });
+    var last = fs.length - 1;                                     // plus the final frame (3 s+ / fully loaded)
+    if (!used[last]) idxs.push(last);
+    idxs.sort(function (a, b) { return a - b; });
+    idxs.forEach(function (i) {
+      var fr = fs[i];
+      if (typeof fr.data !== 'string' || fr.data.indexOf('data:image/') !== 0) return;
+      var secs = (fr.timing / 1000).toFixed(1) + ' s';
+      var li = el('li', fr.timing > LCP_TARGET_S * 1000 ? 'late' : '');
+      var fig = el('figure', '');
+      var img = el('img'); img.src = fr.data; img.alt = 'Your page ' + secs + ' into loading'; img.loading = 'lazy'; img.decoding = 'async';
+      fig.appendChild(img);
+      fig.appendChild(el('figcaption', '', secs));
+      li.appendChild(fig);
+      ol.appendChild(li);
+    });
+    wrap.hidden = !ol.children.length;
+  }
+
+  /* ---------- final render ---------- */
   function headline(score) {
     if (score == null) return 'Here is what we could measure.';
-    if (score >= 90) return 'Your site is in good shape. A few things to polish.';
+    if (score >= 90) return 'Your site is in good shape, with a few things to polish.';
     if (score >= 70) return 'Solid foundation, but fixable issues are holding it back.';
     if (score >= 50) return 'Real problems that visitors and Google will notice.';
-    return 'Your site needs attention. It is likely losing visitors.';
+    return 'Your site needs attention and is likely losing visitors.';
   }
 
   function renderFinal(r) {
@@ -213,35 +358,29 @@
     $('ring-num').textContent = score == null ? 'n/a' : score;
     ring.setAttribute('aria-label', 'Overall score ' + (score == null ? 'unavailable' : score + ' out of 100'));
     $('results-title').textContent = headline(score);
-    var highs = (r.findings || []).filter(function (f) { return f.sev === 'high'; }).length;
-    $('results-subtitle').textContent = r.host + ' · ' + (r.findings || []).length + ' findings' + (highs ? ', ' + highs + ' to fix first' : '') +
-      '. Overall is our blend of Google\'s mobile speed, SEO, accessibility and best-practice scores.';
+    var f = r.findings || [];
+    var highs = f.filter(function (x) { return x.sev === 'high'; }).length;
+    $('results-subtitle').textContent = r.host + ' · overall score' + (score == null ? ' unavailable' : ' ' + score + '/100') + ' · ' + f.length + ' finding' + (f.length === 1 ? '' : 's');
+    $('print-header').textContent = 'MS Labs Studio · Free Website Check · ' + r.host + ' · ' + new Date().toLocaleDateString();
 
-    var f = r.findings || [], fl = $('findings'), more = $('findings-more');
-    fl.replaceChildren(); more.replaceChildren();
-    if (!f.length) fl.appendChild(el('li', 'fix-plain', 'No significant issues detected in the automated checks.'));
-    f.slice(0, 3).forEach(function (x) { fl.appendChild(fixItem(x)); });
-    f.slice(3).forEach(function (x) { more.appendChild(fixItem(x)); });
-    $('more-findings').hidden = f.length <= 3;
-    $('more-summary').textContent = 'Show ' + (f.length - 3) + ' more';
+    renderFindings(r);
+    renderImpact();
+    renderFilmstrip();
 
-    var wp = !!(r.page && r.page.isWordPress);
-    var midText = wp
-      ? 'Your site looks like WordPress. We handle exactly these fixes (speed, updates, security) on a monthly plan.'
-      : 'Most of these are quick wins for a developer. We can walk you through which ones matter for your goals.';
-    $('mid-cta-text').textContent = midText; $('mid-cta').hidden = !f.length;
-    $('wp-link').hidden = !wp;
-    $('final-cta').hidden = false; $('summary-cta').hidden = false;
+    $('wp-link').hidden = !(r.page && r.page.isWordPress);
+    $('cta-block').hidden = false;
+    $('compare-card').hidden = false;
+    $('tech-details').hidden = false;
 
     var q = '?from=free-check&site=' + encodeURIComponent(r.host) + (score != null ? '&score=' + score : '') + '&issues=' + f.length;
     document.querySelectorAll('[data-cta]').forEach(function (a) {
-      if (a.tagName === 'A' && a.getAttribute('data-cta') !== 'final-wp') a.href = CONTACT_URL + q + '#contact';
+      if (a.tagName === 'A' && a.getAttribute('data-cta') !== 'wp-care') a.href = CONTACT_URL + q + '#contact';
     });
     $('sticky-text').textContent = highs ? highs + ' issue' + (highs > 1 ? 's' : '') + ' to fix first' : 'Want help with these?';
     $('sticky-cta').classList.add('show');
   }
 
-  function render() { renderCards(); renderDetails(); }
+  function render() { renderCards(); renderDetails(); renderImpact(); renderFilmstrip(); }
 
   /* ---------- progress ---------- */
   function setStep(name, s) {
@@ -259,7 +398,7 @@
     switch (ev.event) {
       case 'page': state.page = ev.page; state.headers = ev.headers; setStep('page', 'done'); break;
       case 'page_error': state.pageError = ev.message; setStep('page', 'err'); setStep('links', 'err'); break;
-      case 'links': state.files = ev.files; state.links = ev.links; setStep('links', 'done'); break;
+      case 'links': state.files = ev.files; state.links = ev.links; state.mail = ev.mail || null; setStep('links', 'done'); break;
       case 'psi_mobile': state.mobile = ev.mobile; setStep('mobile', 'done'); break;
       case 'psi_desktop': state.desktop = ev.desktop; setStep('desktop', 'done'); break;
       case 'psi_error':
@@ -271,25 +410,13 @@
         progress.hidden = true;
         if (!handle.scrolled) { handle.scrolled = true; results.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         $('results-title').focus({ preventScroll: true });
-        track('check_completed', { overall: state.overall, wordpress: !!(state.page && state.page.isWordPress) });
+        track('audit_completed', { overall: state.overall, wordpress: !!(state.page && state.page.isWordPress), site: state.host });
         return;
       case 'fatal': throw new Error(ev.message);
     }
     results.hidden = false;
     render();
     if (!handle.scrolled) { handle.scrolled = true; results.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  }
-
-  function waitForToken(ms) {
-    return new Promise(function (resolve) {
-      var t0 = Date.now();
-      (function poll() {
-        var f = form.querySelector('[name="cf-turnstile-response"]');
-        if (f && f.value) return resolve(f.value);
-        if (Date.now() - t0 > ms) return resolve('');
-        setTimeout(poll, 200);
-      })();
-    });
   }
 
   function utm() {
@@ -318,17 +445,20 @@
     var token = ''; // Turnstile disabled for testing
 
     state = {}; handle.scrolled = true;
-    $('final-cta').hidden = true; $('mid-cta').hidden = true; $('more-findings').hidden = true; $('sticky-cta').classList.remove('show');
+    ['cta-block', 'compare-card', 'tech-details', 'filmstrip-wrap'].forEach(function (id) { $(id).hidden = true; });
+    $('tech-details').open = false;
+    $('cmp-result').hidden = true; $('cmp-result').replaceChildren(); $('cmp-status').textContent = '';
+    $('sticky-cta').classList.remove('show');
     document.querySelectorAll('#steps li').forEach(function (li) { li.setAttribute('data-s', 'run'); });
     $('progress-fill').style.width = '6%';
     progress.hidden = false;
     setSummaryLoading(parsed.hostname);
-    results.hidden = false;                 // show the full skeleton layout immediately: nothing "pops in" later
+    results.hidden = false;                 // show the skeleton layout immediately: nothing "pops in" later
     render();
-    skeleton($('findings'), 3);
+    skeleton($('top-fixes'), 3);
     setStatus('Analyzing ' + parsed.hostname + '…');
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    track('check_started');
+    track('audit_started', { site: parsed.hostname });
 
     var ctl = new AbortController();
     var timer = setTimeout(function () { ctl.abort(); }, CLIENT_TIMEOUT_MS);
@@ -365,13 +495,14 @@
         $('summary').classList.remove('is-loading');
         $('results-title').textContent = 'Partial results';
         $('results-subtitle').textContent = 'Some tests did not finish. You can run the check again for the full report.';
+        $('tech-details').hidden = false;
         results.hidden = false;
       } else {
         results.hidden = true;
         form.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       setStatus(msg, 'error');
-      track('check_failed');
+      track('audit_failed');
     } finally {
       clearTimeout(timer);
       submitBtn.disabled = false;
@@ -379,15 +510,114 @@
   }
   form.addEventListener('submit', function (event) { event.preventDefault(); runCheck(); });
 
-  /* ---------- share + prefill ---------- */
-  $('share-report').addEventListener('click', async function () {
-    var v = $('check-url').value.trim(); if (!v) return;
-    var u = new URL(location.origin + location.pathname); u.searchParams.set('url', v);
-    var btn = $('share-report');
-    try { await navigator.clipboard.writeText(u.toString()); btn.textContent = '✓ Link copied'; setTimeout(function () { btn.textContent = 'Copy check link'; }, 2500); }
-    catch (e) { window.prompt('Copy this link:', u.toString()); }
-    track('share_clicked');
+  /* ---------- impact inputs ---------- */
+  ['imp-visitors', 'imp-conv', 'imp-value'].forEach(function (id) { $(id).addEventListener('input', renderImpact); });
+
+  /* ---------- save as PDF ---------- */
+  var reopen = [];
+  window.addEventListener('beforeprint', function () {   // expand collapsed sections so the PDF contains everything
+    reopen = [];
+    document.querySelectorAll('#results details').forEach(function (d) { if (!d.open) { reopen.push(d); d.open = true; } });
   });
+  window.addEventListener('afterprint', function () {
+    reopen.forEach(function (d) { d.open = false; }); reopen = [];
+  });
+  $('save-pdf').addEventListener('click', function () {
+    track('pdf_saved', { site: state.host || '' });
+    window.print();
+  });
+
+  /* ---------- share with developer ---------- */
+  function shareUrl() {
+    var target = state.url || state.host || $('check-url').value.trim();
+    if (!target) return '';
+    return SHARE_BASE + '?url=' + encodeURIComponent(target);
+  }
+  $('share-dev').addEventListener('click', async function () {
+    var url = shareUrl(); if (!url) return;
+    try { await navigator.clipboard.writeText(url); toast('Link copied. Send it to your developer.'); }
+    catch (e) { window.prompt('Copy this link:', url); }
+    track('report_shared', { site: state.host || '' });
+  });
+
+  /* ---------- competitor comparison ---------- */
+  function cmpSide(who, score, lead) {
+    var s = el('div', 'cmp-side' + (lead ? ' lead' : ''));
+    s.appendChild(el('div', 'who', who));
+    s.appendChild(el('div', 'num ' + rateScore(score), score == null ? 'n/a' : String(score)));
+    s.appendChild(el('div', 'check-note', 'Overall score'));
+    return s;
+  }
+
+  function renderCompare(c) {
+    var box = $('cmp-result'); box.replaceChildren();
+    var mine = state.overall, theirs = c.overall;
+    var youLead = mine != null && theirs != null && mine > theirs, tie = mine === theirs;
+
+    var versus = el('div', 'cmp-versus');
+    versus.appendChild(cmpSide('Your Site', mine, youLead));
+    versus.appendChild(el('div', 'cmp-vs', 'vs'));
+    versus.appendChild(cmpSide('Competitor', theirs, mine != null && theirs != null && theirs > mine));
+    box.appendChild(versus);
+
+    var verdict;
+    if (mine == null || theirs == null) verdict = 'We couldn\'t score one of the sites, so a direct comparison isn\'t possible.';
+    else if (tie) verdict = 'You\'re neck and neck with ' + c.host + '.';
+    else if (youLead) verdict = 'You\'re ' + (mine - theirs) + ' point' + (mine - theirs > 1 ? 's' : '') + ' ahead of ' + c.host + '. Worth protecting that lead.';
+    else verdict = c.host + ' is ' + (theirs - mine) + ' point' + (theirs - mine > 1 ? 's' : '') + ' ahead of you. Closing that gap is a good use of the 3 fixes above.';
+    box.appendChild(el('p', 'cmp-verdict', verdict));
+
+    var mm = (state.mobile && state.mobile.scores) || {}, cs = c.scores || {};
+    var rows = [['Mobile speed', mm.performance, cs.performance], ['SEO basics', mm.seo, cs.seo], ['Accessibility', mm.accessibility, cs.accessibility], ['Best practices', mm.bestPractices, cs.bestPractices]];
+    var table = el('table', 'cmp-table');
+    var head = el('thead'), hr = el('tr');
+    ['', 'You', c.host].forEach(function (t) { hr.appendChild(el('th', '', t)); });
+    head.appendChild(hr); table.appendChild(head);
+    var body = el('tbody');
+    rows.forEach(function (r) {
+      var tr = el('tr');
+      tr.appendChild(el('td', '', r[0]));
+      tr.appendChild(el('td', '', r[1] == null ? 'n/a' : String(r[1])));
+      tr.appendChild(el('td', '', r[2] == null ? 'n/a' : String(r[2])));
+      body.appendChild(tr);
+    });
+    table.appendChild(body); box.appendChild(table);
+    box.hidden = false;
+  }
+
+  $('cmp-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var btn = $('cmp-submit'), st = $('cmp-status'), input = $('cmp-url');
+    if (btn.disabled) return;
+    var raw = input.value.trim();
+    function fail(msg) { st.textContent = msg; st.className = 'form-status cmp-status is-error'; }
+    st.className = 'form-status cmp-status'; st.textContent = '';
+    if (!raw) { fail('Please enter your competitor\'s website address.'); input.focus(); return; }
+    var u; try { u = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw); } catch (e) { fail('That doesn\'t look like a website address. Try something like competitor.com.'); input.focus(); return; }
+    if (u.hostname.indexOf('.') < 0) { fail('That doesn\'t look like a website address. Try something like competitor.com.'); input.focus(); return; }
+    if (state.host && u.hostname.replace(/^www\./, '') === String(state.host).replace(/^www\./, '')) { fail('That\'s your own site. Enter a competitor\'s address.'); input.focus(); return; }
+
+    btn.disabled = true; btn.textContent = 'Scanning…';
+    st.textContent = 'Scanning ' + u.hostname + '… this takes about 20–30 seconds.';
+    $('cmp-result').hidden = true;
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, COMPARE_TIMEOUT_MS);
+    try {
+      var res = await fetch(API_BASE + '/api/compare', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal,
+        body: JSON.stringify({ url: raw })
+      });
+      var j = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(j.error || 'Server error (' + res.status + ')');
+      st.textContent = '';
+      renderCompare(j);
+      track('competitor_compared', { you: state.overall, competitor: j.overall, competitor_host: j.host });
+    } catch (e) {
+      fail(e && e.name === 'AbortError' ? 'The scan took too long. Please try again.' : (e.message || 'Could not reach the comparison service.'));
+    } finally {
+      clearTimeout(timer); btn.disabled = false; btn.textContent = 'Compare Scores';
+    }
+  });
+
   /* ---------- remembered contact + shareable-link auto-run ---------- */
   var LS_KEY = 'mslabs_check_contact';
   function loadContact() { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { return null; } }
@@ -418,6 +648,6 @@
 
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('[data-cta]');
-    if (a) track('cta_click', { cta: a.getAttribute('data-cta') });
+    if (a) track('cta_clicked', { cta: a.getAttribute('data-cta'), site: state.host || '' });
   });
 })();
