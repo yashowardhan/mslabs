@@ -13,7 +13,6 @@
   <meta property="og:url" content="https://mslabsstudio.com/free-check.html">
   <meta property="og:image" content="https://mslabsstudio.com/assets/og-free-check.png">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     :root { --ink:#0f172a; --muted:#475569; --good:#34d399; --ok:#fbbf24; --poor:#f87171; --teal:#2dd4bf; }
 
@@ -149,10 +148,7 @@
               <input id="hp-field" name="hp_field" type="text" tabindex="-1" autocomplete="off">
             </div>
 
-            <div class="field field-full">
-              <!-- REPLACE with your real Turnstile site key. 1x000…AA is Cloudflare's always-pass TEST key. -->
-              <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-action="site-check" data-theme="dark" data-appearance="interaction-only"></div>
-            </div>
+            <!-- Turnstile widget removed for testing. Re-add before public launch. -->
           </div>
 
           <div class="check-form-actions">
