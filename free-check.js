@@ -44,11 +44,37 @@
 
   /* ---------- rendering ---------- */
   function card(label, value, sub, tone, pending) {
-    var c = el('article', 'metric-card' + (pending ? ' pending' : ''));
+    var c = el('article', 'metric-card' + (pending ? ' is-skeleton' : ''));
     c.appendChild(el('span', 'metric-label', label));
-    c.appendChild(el('strong', 'metric-value ' + (tone || ''), pending ? '…' : (value == null ? 'n/a' : String(value))));
+    if (pending) {                       // shimmer placeholder, same footprint as the real card
+      c.setAttribute('aria-busy', 'true');
+      c.appendChild(el('span', 'skel skel-value'));
+      c.appendChild(el('span', 'skel skel-sub'));
+      return c;
+    }
+    c.appendChild(el('strong', 'metric-value ' + (tone || ''), value == null ? 'n/a' : String(value)));
     if (sub) c.appendChild(el('small', 'metric-sub', sub));
     return c;
+  }
+
+  function skeleton(ul, n) {
+    ul.replaceChildren();
+    for (var i = 0; i < n; i++) {
+      var li = el('li', 'fix-item'); li.setAttribute('aria-hidden', 'true');
+      li.appendChild(el('span', 'skel skel-line'));
+      li.appendChild(el('span', 'skel skel-line short'));
+      ul.appendChild(li);
+    }
+  }
+
+  function setSummaryLoading(host) {
+    $('summary').classList.add('is-loading');
+    $('ring').style.setProperty('--p', 28);
+    $('ring-num').textContent = '';
+    $('ring').setAttribute('aria-label', 'Analysis in progress');
+    $('results-title').textContent = 'Analyzing ' + host + '…';
+    $('results-subtitle').textContent = 'Results fill in below as each test finishes.';
+    $('summary-cta').hidden = true;
   }
 
   function scoreCard(label, getter, sub, errKey) {
@@ -122,8 +148,7 @@
         row('sitemap.xml', files.sitemap == null ? null : files.sitemap)
       );
     } else if (!p) {
-      basics.appendChild(el('li', 'fix-plain', 'Checking…'));
-      hl.appendChild(el('li', 'fix-plain', 'Checking…'));
+      skeleton(basics, 6); skeleton(hl, 5);
     }
     if (h) {
       hl.append(
@@ -138,7 +163,7 @@
     var opp = $('opportunities'); opp.replaceChildren();
     var list = (state.mobile && state.mobile.opportunities) || [];
     if (state.mobile && !list.length) opp.appendChild(el('li', 'fix-plain', 'No major speed opportunities flagged. Nice.'));
-    else if (!state.mobile) opp.appendChild(el('li', 'fix-plain', state.mobileError || 'Running the speed test…'));
+    else if (!state.mobile) { if (state.mobileError) opp.appendChild(el('li', 'fix-plain', state.mobileError)); else skeleton(opp, 3); }
     list.forEach(function (o) {
       var li = el('li', 'fix-item');
       li.appendChild(el('div', 'fix-title', o.title));
@@ -157,14 +182,17 @@
         : 'No same-site links found on the homepage to check.';
       L.items.forEach(function (it) {
         var li = el('li', 'check-row');
-        li.appendChild(el('span', 'link-url', it.url.replace(/^https?:\/\//, '')));
+        var a = el('a', 'link-url', it.url.replace(/^https?:\/\//, ''));
+        if (/^https?:\/\//i.test(it.url)) { a.href = it.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+        li.appendChild(a);
         var ok = it.state === 'ok';
         li.appendChild(el('span', ok ? 'badge-ok' : it.state === 'broken' ? 'badge-err' : 'badge-warn',
           ok ? 'OK' : it.state === 'broken' ? 'Broken ' + it.status : 'Unverified'));
         ls.appendChild(li);
       });
     } else {
-      sum.textContent = state.pageError ? '' : 'Checking links…';
+      sum.textContent = state.pageError || '';
+      if (!state.pageError) skeleton(ls, 4);
     }
   }
 
@@ -177,6 +205,7 @@
   }
 
   function renderFinal(r) {
+    $('summary').classList.remove('is-loading');
     var score = r.overall;
     var ring = $('ring');
     ring.style.setProperty('--p', score == null ? 0 : score);
@@ -273,13 +302,14 @@
     input.setAttribute('aria-invalid', 'true'); input.focus(); setStatus(msg, 'error');
   }
 
-  form.addEventListener('submit', async function (event) {
-    event.preventDefault();
+  async function runCheck() {
+    if (submitBtn.disabled) return;
     ['check-url', 'check-email'].forEach(function (id) { $(id).removeAttribute('aria-invalid'); });
     var rawUrl = $('check-url').value.trim(), email = $('check-email').value.trim(), name = $('check-name').value.trim();
 
     if (!rawUrl) return invalid($('check-url'), 'Please enter your website address.');
-    try { new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl); }
+    var parsed;
+    try { parsed = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl); }
     catch (e) { return invalid($('check-url'), 'That doesn\'t look like a website address. Try something like example.com.'); }
     if (!$('check-email').validity.valid || !email) return invalid($('check-email'), 'Please enter a valid email so we can send follow-up notes.');
 
@@ -287,12 +317,17 @@
     setStatus('');
     var token = ''; // Turnstile disabled for testing
 
-    state = {}; handle.scrolled = false;
-    results.hidden = true; $('final-cta').hidden = true; $('summary-cta').hidden = true; $('sticky-cta').classList.remove('show');
+    state = {}; handle.scrolled = true;
+    $('final-cta').hidden = true; $('mid-cta').hidden = true; $('more-findings').hidden = true; $('sticky-cta').classList.remove('show');
     document.querySelectorAll('#steps li').forEach(function (li) { li.setAttribute('data-s', 'run'); });
     $('progress-fill').style.width = '6%';
     progress.hidden = false;
-    setStatus('');
+    setSummaryLoading(parsed.hostname);
+    results.hidden = false;                 // show the full skeleton layout immediately: nothing "pops in" later
+    render();
+    skeleton($('findings'), 3);
+    setStatus('Analyzing ' + parsed.hostname + '…');
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     track('check_started');
 
     var ctl = new AbortController();
@@ -322,18 +357,27 @@
       }
       if (!got) throw new Error('The check ended early. Please try again.');
       setStatus('Done. Your report is below.', 'ok');
+      saveContact(email, name);
     } catch (e) {
       progress.hidden = true;
       var msg = e && e.name === 'AbortError' ? 'The check took too long. Please try again, or email us and we\'ll run it manually.' : (e.message || 'Could not reach the check service.');
-      if (state && (state.mobile || state.page)) { results.hidden = false; }
+      if (state && (state.mobile || state.page)) {
+        $('summary').classList.remove('is-loading');
+        $('results-title').textContent = 'Partial results';
+        $('results-subtitle').textContent = 'Some tests did not finish. You can run the check again for the full report.';
+        results.hidden = false;
+      } else {
+        results.hidden = true;
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       setStatus(msg, 'error');
       track('check_failed');
     } finally {
       clearTimeout(timer);
       submitBtn.disabled = false;
-      try { if (window.turnstile) window.turnstile.reset(); } catch (e) { /* ignore */ }
     }
-  });
+  }
+  form.addEventListener('submit', function (event) { event.preventDefault(); runCheck(); });
 
   /* ---------- share + prefill ---------- */
   $('share-report').addEventListener('click', async function () {
@@ -344,8 +388,33 @@
     catch (e) { window.prompt('Copy this link:', u.toString()); }
     track('share_clicked');
   });
-  var pre = new URLSearchParams(location.search).get('url');
-  if (pre) $('check-url').value = pre;
+  /* ---------- remembered contact + shareable-link auto-run ---------- */
+  var LS_KEY = 'mslabs_check_contact';
+  function loadContact() { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { return null; } }
+  function saveContact(email, name) { try { localStorage.setItem(LS_KEY, JSON.stringify({ email: email, name: name })); } catch (e) { /* storage may be blocked */ } }
+
+  function init() {
+    var saved = loadContact();
+    if (saved) {
+      if (saved.email && !$('check-email').value) $('check-email').value = saved.email;
+      if (saved.name && !$('check-name').value) $('check-name').value = saved.name;
+    }
+    var raw = (new URLSearchParams(location.search).get('url') || '').trim().slice(0, 2048);
+    if (!raw) return;
+    var u;
+    try { u = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw); } catch (e) { return; }
+    if (!/^https?:$/.test(u.protocol) || u.hostname.indexOf('.') < 0) return;   // light check; the Worker does the strict SSRF validation
+    $('check-url').value = raw;
+    track('share_link_opened');
+    if (saved && saved.email && $('check-email').validity.valid) {
+      setTimeout(runCheck, 0);                                  // auto-run for returning visitors
+    } else {
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setStatus('Enter your email to run the check for ' + u.hostname + '.');
+      $('check-email').focus({ preventScroll: true });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('[data-cta]');
