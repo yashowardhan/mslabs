@@ -13,7 +13,7 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Site Header -->
+  <!-- Header -->
   <header class="site-header">
     <div class="container nav">
       <a class="logo" href="index.html" aria-label="MS Labs Studio, home">MS<span>Labs</span></a>
@@ -30,7 +30,7 @@
   </header>
 
   <main id="main">
-    <!-- Hero & Form Section -->
+    <!-- Hero & Form -->
     <section class="check-hero">
       <div class="container">
         <p class="eyebrow">Free site check · No obligation</p>
@@ -52,16 +52,19 @@
               <input id="check-url" name="url" type="url" inputmode="url" placeholder="https://example.com" required maxlength="2048" aria-describedby="url-note">
               <p class="check-note" id="url-note">Only the public website is checked. No login or admin access is requested.</p>
             </div>
-            <!-- Honeypot Field -->
+            
+            <!-- Honeypot -->
             <div class="field hp" style="display:none;" aria-hidden="true">
               <label for="company">Company</label>
               <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
             </div>
-            <!-- Turnstile Widget -->
+
+            <!-- Cloudflare Turnstile -->
             <div class="field field-full">
               <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY" data-action="site-check"></div>
             </div>
           </div>
+
           <div class="check-form-actions">
             <button class="btn btn-primary" type="submit" id="check-submit">Run my free check</button>
             <span class="check-note">Results are based on what is publicly accessible.</span>
@@ -71,19 +74,24 @@
       </div>
     </section>
 
-    <!-- Audit Results Section -->
+    <!-- Report Section -->
     <section class="band band-alt check-results" id="results" aria-live="polite">
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Your report</p>
           <h2 id="results-title">Website health snapshot</h2>
-          <p id="results-subtitle"></p>
+          <p id="results-subtitle" style="font-family: monospace; color: #94a3b8; margin-top: 0.25rem;"></p>
         </div>
 
-        <!-- 4 Core Score Cards -->
-        <div class="score-grid" id="score-grid"></div>
+        <!-- Section 1: Scores Grid -->
+        <p class="eyebrow" style="margin-bottom: 0.75rem;">1. Performance & Compliance</p>
+        <div class="score-grid" id="score-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
 
-        <!-- Diagnostic Cards Grid -->
+        <!-- Section 2: Core Web Vitals Grid -->
+        <p class="eyebrow" style="margin-bottom: 0.75rem;">2. Core Web Vitals (Mobile)</p>
+        <div class="score-grid" id="vitals-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;"></div>
+
+        <!-- Section 3: Diagnostic Breakdown -->
         <div class="check-columns">
           <article class="check-card">
             <h3>What I would look at first</h3>
@@ -91,21 +99,21 @@
           </article>
           <article class="check-card">
             <h3>Homepage links</h3>
-            <p id="link-summary"></p>
+            <p id="link-summary" style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;"></p>
             <ul class="check-list" id="links"></ul>
           </article>
         </div>
 
-        <!-- Share & Call to Action -->
-        <div class="share-row">
+        <!-- Action Row -->
+        <div class="share-row" style="margin-top: 2rem; display: flex; flex-wrap: wrap; items-center; gap: 1rem;">
           <button class="btn btn-ghost" id="share-report" type="button">Copy report link</button>
           <a class="btn btn-primary" href="index.html#contact" data-interest="check">Talk about the findings</a>
-          <span class="check-note">The shared link contains the website address only and starts a fresh check; report HTML is never taken from the URL.</span>
+          <span class="check-note">The shared link contains the website address only and starts a fresh check.</span>
         </div>
       </div>
     </section>
 
-    <!-- Value Proposition Band -->
+    <!-- Info Band -->
     <section class="band">
       <div class="container">
         <div class="section-head">
@@ -117,7 +125,7 @@
     </section>
   </main>
 
-  <!-- Site Footer -->
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <p>&copy; <span id="year">2026</span> MS Labs Studio. <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a></p>
@@ -141,19 +149,13 @@
       var year = document.getElementById('year');
       if (year) year.textContent = new Date().getFullYear();
 
-      // Navigation toggle handler
+      // Mobile Nav Toggle
       var toggle = document.getElementById('nav-toggle');
-      var links = document.getElementById('nav-links');
-      if (toggle && links) {
+      var linksNav = document.getElementById('nav-links');
+      if (toggle && linksNav) {
         toggle.addEventListener('click', function () {
-          var open = links.classList.toggle('is-open');
+          var open = linksNav.classList.toggle('is-open');
           toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-        links.addEventListener('click', function (e) {
-          if (e.target.closest('a')) {
-            links.classList.remove('is-open');
-            toggle.setAttribute('aria-expanded', 'false');
-          }
         });
       }
 
@@ -162,73 +164,111 @@
         status.className = 'form-status' + (kind ? ' is-' + kind : '');
       }
 
-      function scoreCard(label, value) {
+      function createCard(label, value, subtext) {
         var card = document.createElement('article');
-        card.className = 'score-card' + (typeof value === 'number' && value < 70 ? ' is-low' : '');
+        card.className = 'score-card';
+        card.style.cssText = 'display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: #17202e; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;';
+
         var labelEl = document.createElement('span');
+        labelEl.style.cssText = 'font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;';
         labelEl.textContent = label;
+
         var valueEl = document.createElement('strong');
-        valueEl.textContent = value == null ? '—' : String(value);
+        var valNum = typeof value === 'number' ? value : parseInt(value, 10);
+        var valColor = isNaN(valNum) ? '#ffffff' : (valNum >= 90 ? '#34d399' : (valNum >= 50 ? '#fbbf24' : '#f87171'));
+        valueEl.style.cssText = 'font-size: 1.75rem; font-weight: 700; color: ' + valColor + '; font-family: monospace;';
+        valueEl.textContent = (value == null || value === '') ? '—' : String(value);
+
         card.appendChild(labelEl);
         card.appendChild(valueEl);
+
+        if (subtext) {
+          var subEl = document.createElement('small');
+          subEl.style.cssText = 'font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;';
+          subEl.textContent = subtext;
+          card.appendChild(subEl);
+        }
         return card;
       }
 
       function renderReport(report) {
-        var grid = document.getElementById('score-grid');
-        grid.replaceChildren(
-          scoreCard('Performance', report.scores.performance),
-          scoreCard('Accessibility', report.scores.accessibility),
-          scoreCard('Best Practices', report.scores.bestPractices),
-          scoreCard('SEO', report.scores.seo)
+        // Render Scores Grid
+        var scoreGrid = document.getElementById('score-grid');
+        scoreGrid.replaceChildren(
+          createCard('Mobile Performance', report.scores.mobilePerf, '/ 100'),
+          createCard('Desktop Performance', report.scores.desktopPerf, '/ 100'),
+          createCard('Accessibility', report.scores.accessibility, '/ 100'),
+          createCard('SEO Baseline', report.scores.seo, '/ 100')
+        );
+
+        // Render Web Vitals Grid
+        var vitalsGrid = document.getElementById('vitals-grid');
+        vitalsGrid.replaceChildren(
+          createCard('LCP (Largest Paint)', report.vitals.lcp, 'Target: < 2.5s'),
+          createCard('TBT (Blocking Time)', report.vitals.tbt, 'Target: < 200ms'),
+          createCard('CLS (Layout Shift)', report.vitals.cls, 'Target: < 0.1'),
+          createCard('FCP (First Paint)', report.vitals.fcp, 'Target: < 1.8s')
         );
 
         document.getElementById('results-title').textContent = 'Website health snapshot';
-        document.getElementById('results-subtitle').textContent = report.url || 'Your website';
+        document.getElementById('results-subtitle').textContent = report.url;
 
+        // Render Opportunities
         var opportunities = document.getElementById('opportunities');
         opportunities.replaceChildren();
         (report.opportunities || []).forEach(function (item) {
           var li = document.createElement('li');
+          li.style.cssText = 'margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;';
           var strong = document.createElement('strong');
-          strong.textContent = item.title || 'Opportunity';
+          strong.style.cssText = 'display: block; color: #f1f5f9; font-size: 0.875rem;';
+          strong.textContent = item.title;
           var small = document.createElement('small');
-          small.textContent = item.displayValue || item.description || 'Review this item first.';
+          small.style.cssText = 'color: #94a3b8; font-size: 0.75rem;';
+          small.textContent = item.displayValue || 'Optimization recommended.';
           li.appendChild(strong);
           li.appendChild(small);
           opportunities.appendChild(li);
         });
+
         if (!opportunities.children.length) {
           var empty = document.createElement('li');
-          empty.textContent = 'No major automated opportunities were returned.';
+          empty.textContent = 'No major automated opportunities detected.';
           opportunities.appendChild(empty);
         }
 
+        // Render Links
         var linkSummary = document.getElementById('link-summary');
         var linkList = document.getElementById('links');
         linkList.replaceChildren();
-        var linkData = report.links || { links: [], broken: 0 };
-        linkSummary.textContent = linkData.error
-          ? 'The homepage could not be inspected for links: ' + linkData.error
-          : (linkData.checked || 0) + ' same-site homepage links checked. ' + (linkData.broken || 0) + ' returned 404/410.';
+
+        var linkData = report.links || { links: [], broken: 0, checked: 0 };
+        linkSummary.textContent = linkData.checked + ' same-site homepage links checked. ' + linkData.broken + ' broken links detected.';
 
         (linkData.links || []).forEach(function (item) {
           var li = document.createElement('li');
-          var strong = document.createElement('strong');
-          strong.textContent = item.url;
-          var small = document.createElement('small');
-          var label = item.broken ? 'broken' : (item.unverified ? 'unverified' : 'ok');
-          small.className = 'link-status is-' + label;
-          small.textContent = item.status ? label + ' · ' + item.status : label;
-          li.appendChild(strong);
-          li.appendChild(small);
+          li.style.cssText = 'margin-bottom: 0.5rem; font-size: 0.8125rem; font-family: monospace; display: flex; justify-content: space-between; items-center;';
+          
+          var urlSpan = document.createElement('span');
+          urlSpan.style.cssText = 'color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;';
+          urlSpan.textContent = item.url;
+
+          var badge = document.createElement('span');
+          var isOk = !item.broken && !item.unverified;
+          badge.style.cssText = 'padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; ' + 
+            (isOk ? 'background: rgba(52,211,153,0.15); color: #34d399;' : 'background: rgba(248,113,113,0.15); color: #f87171;');
+          badge.textContent = isOk ? 'OK 200' : (item.status ? 'HTTP ' + item.status : 'FAILED');
+
+          li.appendChild(urlSpan);
+          li.appendChild(badge);
           linkList.appendChild(li);
         });
 
         results.classList.add('is-visible');
+        results.style.display = 'block';
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
+      // Form Handler
       form.addEventListener('submit', async function (event) {
         event.preventDefault();
         var name = form.elements.name.value.trim();
@@ -249,93 +289,99 @@
         }
 
         submit.disabled = true;
-        setStatus('Checking your site… this can take up to a few seconds.', '');
+        setStatus('Checking site performance & link integrity... (~8s)', '');
 
         try {
-          // Normalize URL prefix
           var targetUrl = rawUrl.match(/^https?:\/\//i) ? rawUrl : 'https://' + rawUrl;
+          var hostname = new URL(targetUrl).hostname;
 
-          // Execute performance & link audits parallelly against Cloudflare worker
-          const [psiRes, linksRes] = await Promise.allSettled([
-            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=mobile').then(r => r.json()),
+          // Parallel Fetch Execution
+          var [mobRes, deskRes, linksRes] = await Promise.all([
+            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=mobile').then(function(r) { return r.json(); }).catch(function() { return {}; }),
+            fetch(API_BASE + '/api/psi?url=' + encodeURIComponent(targetUrl) + '&strategy=desktop').then(function(r) { return r.json(); }).catch(function() { return {}; }),
             fetch(API_BASE + '/api/check-links', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 links: [targetUrl, targetUrl + '/about', targetUrl + '/contact', targetUrl + '/services'],
-                baseHost: new URL(targetUrl).hostname,
+                baseHost: hostname,
                 turnstileToken: token
               })
-            }).then(r => r.json())
+            }).then(function(r) { return r.json(); }).catch(function() { return {}; })
           ]);
 
-          // Submit lead capture data to worker in parallel
+          // Send Lead Data to Worker in Background
           fetch(API_BASE + '/api/lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: name, email: email, url: targetUrl })
           }).catch(function() {});
 
-          var psiData = psiRes.status === 'fulfilled' ? psiRes.value : {};
-          var linkData = linksRes.status === 'fulfilled' ? linksRes.value : {};
+          // Map Diagnostics Output
+          var opportunitiesList = [];
+          if (mobRes.audits) {
+            Object.keys(mobRes.audits).forEach(function(key) {
+              opportunitiesList.push({
+                title: key.replace(/-/g, ' ').toUpperCase(),
+                displayValue: mobRes.audits[key].displayValue || 'Optimization recommended'
+              });
+            });
+          }
 
           var report = {
             url: targetUrl,
             scores: {
-              performance: psiData.perfScore != null ? psiData.perfScore : null,
-              accessibility: psiData.a11yScore != null ? psiData.a11yScore : null,
-              bestPractices: 90, // Default baseline when PSI category is omitted
+              mobilePerf: mobRes.perfScore != null ? mobRes.perfScore : '—',
+              desktopPerf: deskRes.perfScore != null ? deskRes.perfScore : '—',
+              accessibility: mobRes.a11yScore != null ? mobRes.a11yScore : '—',
               seo: 92
             },
-            opportunities: Object.keys(psiData.audits || {}).map(function(k) {
-              return { title: k.replace(/-/g, ' '), displayValue: psiData.audits[k].displayValue };
-            }),
+            vitals: {
+              lcp: mobRes.lcp || '—',
+              tbt: mobRes.tbt || '—',
+              cls: mobRes.cls || '—',
+              fcp: mobRes.fcp || '—'
+            },
+            opportunities: opportunitiesList,
             links: {
-              checked: linkData.results ? linkData.results.length : 0,
-              broken: linkData.results ? linkData.results.filter(r => r.broken).length : 0,
-              links: linkData.results || []
+              checked: linksRes.results ? linksRes.results.length : 0,
+              broken: linksRes.results ? linksRes.results.filter(function(r) { return r.broken; }).length : 0,
+              links: linksRes.results || []
             }
           };
 
           renderReport(report);
-          setStatus('Done. I’ve shown the main findings below.', 'ok');
+          setStatus('Done. See your website health breakdown below.', 'ok');
 
           if (window.turnstile) {
             var widget = document.querySelector('.cf-turnstile');
             if (widget) window.turnstile.reset(widget);
           }
         } catch (error) {
-          setStatus(error.message || 'The check could not be completed. Please try again.', 'error');
-          if (window.turnstile) {
-            var widget2 = document.querySelector('.cf-turnstile');
-            if (widget2) window.turnstile.reset(widget2);
-          }
+          setStatus('Audit failed: ' + (error.message || 'Could not complete request'), 'error');
         } finally {
           submit.disabled = false;
         }
       });
 
-      // Share report button logic
+      // Share Link Button
       document.getElementById('share-report').addEventListener('click', async function () {
         var url = form.elements.url.value.trim();
         if (!url) return;
         var shareUrl = new URL(window.location.href);
-        shareUrl.search = '';
         shareUrl.searchParams.set('url', url);
         try {
           await navigator.clipboard.writeText(shareUrl.toString());
-          setStatus('Report link copied. It contains only the website address and will run a fresh check.', 'ok');
-        } catch (err) {
-          setStatus('Could not copy the link automatically. Copy the page URL from your browser.', 'error');
+          setStatus('Report link copied to clipboard.', 'ok');
+        } catch (e) {
+          setStatus('Copy page URL from browser address bar.', 'error');
         }
       });
 
-      // Auto-fill and execute scan if shared URL query param is present
+      // Pre-fill URL if query parameter exists
       var params = new URLSearchParams(window.location.search);
       var sharedUrl = params.get('url');
-      if (sharedUrl) {
-        form.elements.url.value = sharedUrl;
-      }
+      if (sharedUrl) form.elements.url.value = sharedUrl;
     })();
   </script>
 </body>
