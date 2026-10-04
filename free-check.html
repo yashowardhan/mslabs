@@ -100,6 +100,32 @@
     @media (min-width:900px){ .sticky-cta.show{ display:none; } }
     .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
     #results-title:focus { outline:none; }
+    /* ---- Global: make [hidden] win over display:flex/grid rules (was letting CTAs/progress flash early) ---- */
+    [hidden] { display:none !important; }
+
+    /* ---- Contrast (WCAG AA) ---- */
+    .check-results .check-note { color:#475569 !important; }                 /* was #94a3b8 on light = ~2.5:1 */
+    .summary-card .check-note, .final-cta .check-note { color:#a8b3c5 !important; }
+    .check-card, .check-card li, .check-row { color:#1e293b; }
+    .check-row small { color:#475569; }
+    .summary-card .btn-ghost, .final-cta .btn-ghost { color:#fff !important; background:transparent !important; border:1px solid rgba(255,255,255,.6) !important; }
+    .summary-card .btn-ghost:hover, .final-cta .btn-ghost:hover { background:rgba(255,255,255,.14) !important; }
+    .summary-card .btn-ghost:focus-visible, .final-cta .btn-ghost:focus-visible, .check-row a:focus-visible, details.more summary:focus-visible { outline:2px solid #2dd4bf; outline-offset:2px; }
+    .check-row a.link-url { color:#0f5f58; text-decoration:underline; text-underline-offset:2px; white-space:normal; word-break:break-all; overflow:visible; max-width:70%; font-weight:500; }
+    .check-row a.link-url:hover { color:#0b3d39; text-decoration-thickness:2px; }
+
+    /* ---- Loading skeletons (no layout shift: same sizes as real content) ---- */
+    .skel { display:block; border-radius:6px; background:linear-gradient(90deg,rgba(148,163,184,.18) 25%,rgba(148,163,184,.36) 50%,rgba(148,163,184,.18) 75%); background-size:200% 100%; animation:shimmer 1.3s linear infinite; }
+    .metric-card.is-skeleton .skel-value { height:30px; width:55%; margin-top:.25rem; }
+    .metric-card.is-skeleton .skel-sub { height:10px; width:80%; margin-top:auto; }
+    .skel-line { height:12px; margin:.5rem 0; }
+    .skel-line.short { width:60%; }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+    .summary-card { min-height:190px; }
+    .summary-card .progress-panel { background:none; border:0; padding:0; margin:0; max-width:none; color:#e2e8f0; }
+    .summary-card.is-loading .ring { --c:#2dd4bf; --p:28; animation:spin 1.1s linear infinite; }
+    .summary-card.is-loading .ring b { visibility:hidden; }
+    @media (prefers-reduced-motion:reduce) { .skel, .summary-card.is-loading .ring { animation:none; } }
   </style>
 </head>
 <body>
@@ -159,17 +185,6 @@
           <p class="form-status" id="check-status" role="status" aria-live="polite"></p>
         </form>
 
-        <div class="progress-panel" id="progress" hidden>
-          <strong id="progress-title">Checking your site…</strong>
-          <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar"><i id="progress-fill"></i></div>
-          <ul class="steps" id="steps">
-            <li data-step="page" data-s="run">Reading your homepage and security headers</li>
-            <li data-step="mobile" data-s="run">Running Google's mobile speed test</li>
-            <li data-step="desktop" data-s="run">Running Google's desktop speed test</li>
-            <li data-step="links" data-s="run">Checking links on your homepage</li>
-          </ul>
-          <p class="check-note" style="margin-top:.9rem">Keep this tab open. Speed tests are the slow part.</p>
-        </div>
 
         <div class="trust-row">
           <span>Public data only</span><span>No login needed</span><span>Results shown right here</span>
@@ -184,6 +199,17 @@
           <div>
             <h2 id="results-title" tabindex="-1">Website health snapshot</h2>
             <p id="results-subtitle"></p>
+            <div class="progress-panel" id="progress" hidden>
+              <strong id="progress-title">Checking your site…</strong>
+              <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar"><i id="progress-fill"></i></div>
+              <ul class="steps" id="steps">
+                <li data-step="page" data-s="run">Reading your homepage and security headers</li>
+                <li data-step="mobile" data-s="run">Running Google's mobile speed test</li>
+                <li data-step="desktop" data-s="run">Running Google's desktop speed test</li>
+                <li data-step="links" data-s="run">Checking links on your homepage</li>
+              </ul>
+              <p class="check-note" style="margin-top:.9rem">Keep this tab open. Speed tests are the slow part.</p>
+            </div>
             <div class="cta-row" id="summary-cta" hidden>
               <a class="btn btn-primary" data-cta="summary-book" href="index.html#contact">Get these fixed: free 20-min walkthrough</a>
               <button class="btn btn-ghost" id="share-report" type="button">Copy check link</button>
@@ -248,6 +274,6 @@
   </footer>
 
   <noscript><p style="padding:1rem;text-align:center">The free check needs JavaScript. Or email <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a> and we'll run it for you.</p></noscript>
-  <script src="free-check.js?v=2" defer></script>
+  <script src="free-check.js?v=3" defer></script>
 </body>
 </html>
