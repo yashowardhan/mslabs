@@ -284,9 +284,8 @@
     if (!$('check-email').validity.valid || !email) return invalid($('check-email'), 'Please enter a valid email so we can send follow-up notes.');
 
     submitBtn.disabled = true;
-    setStatus('Verifying…');
-    var token = await waitForToken(8000);
-    if (!token) { submitBtn.disabled = false; return setStatus('We couldn\'t verify the security check. Please refresh and try again.', 'error'); }
+    setStatus('');
+    var token = ''; // Turnstile disabled for testing
 
     state = {}; handle.scrolled = false;
     results.hidden = true; $('final-cta').hidden = true; $('summary-cta').hidden = true; $('sticky-cta').classList.remove('show');
@@ -353,4 +352,3 @@
     if (a) track('cta_click', { cta: a.getAttribute('data-cta') });
   });
 })();
-
