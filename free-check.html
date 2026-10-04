@@ -4,203 +4,212 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Engineering Site Health Diagnostic — MS Labs Studio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen py-10 px-4">
 
-  <main class="max-w-4xl mx-auto bg-zinc-900/90 border border-zinc-800 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-sm">
-    
-    <!-- Header -->
-    <div class="mb-8 border-b border-zinc-800 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-700/60 rounded-full text-xs font-mono text-zinc-300 mb-3">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          MS LABS // DIAGNOSTIC ENGINE
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Full-Stack Site & Health Inspector</h1>
-        <p class="text-sm text-zinc-400 mt-1">Multi-device Core Web Vitals, link integrity, and DNS security checks.</p>
+  <main>
+
+  <section class="check-hero">
+    <div class="container">
+
+      <div class="eyebrow">
+        FREE WEBSITE CHECK
       </div>
 
-      <!-- Share Report Button (Visible after scan) -->
-      <button 
-        id="share-btn" 
-        onclick="copyShareUrl()" 
-        class="hidden px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-mono text-zinc-200 transition-all flex items-center gap-2 self-start sm:self-auto"
-      >
-        <span>🔗 Copy Shareable Report URL</span>
-      </button>
-    </div>
+      <h1>
+        Find the things slowing your website down.
+      </h1>
 
-    <!-- URL Input Form -->
-    <form id="audit-form" class="flex flex-col sm:flex-row gap-3 mb-8">
-      <input 
-        type="url" 
-        id="site-url" 
-        placeholder="https://yourwebsite.com" 
-        required 
-        class="flex-1 px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400 transition-all font-mono"
-      />
-      <button 
-        type="submit" 
-        id="audit-btn" 
-        class="px-6 py-3 bg-white hover:bg-zinc-200 text-zinc-950 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap"
-      >
-        <span>Run Deep Diagnostic</span>
-      </button>
-    </form>
+      <p class="check-intro">
+        Get a quick technical snapshot of your website —
+        performance, accessibility, SEO, Core Web Vitals
+        and homepage links.
+      </p>
 
-    <!-- Loading State -->
-    <div id="audit-status" class="hidden p-6 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 mb-8 flex items-center gap-4">
-      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <div>
-        <p class="font-medium text-white" id="status-text">Initializing parallel diagnostic engines...</p>
-        <p class="text-xs text-zinc-500 mt-0.5">Checking Mobile, Desktop, Security Headers, and Internal Links (~10s)</p>
-      </div>
-    </div>
+      <form id="freeCheckForm" class="check-form">
 
-    <!-- Results Dashboard -->
-    <div id="audit-results" class="hidden space-y-8">
-      
-      <!-- 1. Multi-Device Performance -->
-      <div>
-        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">1. Multi-Device Performance</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="p-5 bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div class="flex justify-between items-center mb-3">
-              <span class="text-xs font-semibold text-zinc-400">📱 Mobile Strategy</span>
-              <span id="mobile-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
-            </div>
-            <div class="flex items-baseline gap-2">
-              <span id="mobile-score" class="text-4xl font-bold text-white">--</span>
-              <span class="text-xs text-zinc-500">/ 100</span>
-            </div>
-          </div>
+        <div class="form-grid">
 
-          <div class="p-5 bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div class="flex justify-between items-center mb-3">
-              <span class="text-xs font-semibold text-zinc-400">💻 Desktop Strategy</span>
-              <span id="desktop-badge" class="px-2 py-0.5 text-xs font-mono font-semibold rounded">--</span>
-            </div>
-            <div class="flex items-baseline gap-2">
-              <span id="desktop-score" class="text-4xl font-bold text-white">--</span>
-              <span class="text-xs text-zinc-500">/ 100</span>
-            </div>
-          </div>
-        </div>
-      </div>
+          <div class="field">
+            <label for="checkName">
+              Name
+            </label>
 
-      <!-- 2. Core Web Vitals + Dynamic Risk Card -->
-      <div>
-        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">2. Core Web Vitals & Business Impact</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono mb-4">
-          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-            <span class="text-[10px] text-zinc-500 block uppercase">LCP (Largest Paint)</span>
-            <span id="cwv-lcp" class="text-base font-bold text-white mt-1 block">--</span>
-          </div>
-          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-            <span class="text-[10px] text-zinc-500 block uppercase">TBT (Blocking Time)</span>
-            <span id="cwv-tbt" class="text-base font-bold text-white mt-1 block">--</span>
-          </div>
-          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-            <span class="text-[10px] text-zinc-500 block uppercase">CLS (Layout Shift)</span>
-            <span id="cwv-cls" class="text-base font-bold text-white mt-1 block">--</span>
-          </div>
-          <div class="p-3.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-            <span class="text-[10px] text-zinc-500 block uppercase">FCP (First Paint)</span>
-            <span id="cwv-fcp" class="text-base font-bold text-white mt-1 block">--</span>
-          </div>
-        </div>
-
-        <!-- Calculated Risk Summary Card -->
-        <div id="risk-card" class="p-4 bg-amber-950/30 border border-amber-800/50 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <span class="text-[10px] font-mono font-semibold text-amber-400 uppercase tracking-wider block">Estimated Conversion Penalty</span>
-            <p id="risk-text" class="text-xs text-zinc-300 mt-0.5">Analyzing load delay impact on conversion rates...</p>
-          </div>
-          <span id="risk-badge" class="px-3 py-1 bg-amber-900/60 text-amber-200 border border-amber-700/60 font-mono text-xs rounded-lg whitespace-nowrap font-medium">Risk Calculated</span>
-        </div>
-      </div>
-
-      <!-- 3. Security & Link Health (Powered by Worker API) -->
-      <div>
-        <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider mb-3">3. Security & Link Integrity</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
-            <div>
-              <p class="text-xs font-medium text-zinc-200">SPF DNS Record</p>
-              <p class="text-[10px] text-zinc-500">Email anti-spoofing</p>
-            </div>
-            <span id="dns-spf" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
-          </div>
-          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
-            <div>
-              <p class="text-xs font-medium text-zinc-200">DMARC Policy</p>
-              <p class="text-[10px] text-zinc-500">Inbox placement safety</p>
-            </div>
-            <span id="dns-dmarc" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
-          </div>
-          <div class="p-4 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
-            <div>
-              <p class="text-xs font-medium text-zinc-200">Broken Links (404)</p>
-              <p class="text-[10px] text-zinc-500">Sampled navigation</p>
-            </div>
-            <span id="link-status" class="px-2 py-0.5 text-xs font-mono rounded">--</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Code & Payload Waste Analysis -->
-      <div>
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">4. Code & Payload Waste Analysis</h2>
-          <span id="total-savings" class="text-xs font-mono text-amber-400 font-semibold">--</span>
-        </div>
-        <ul id="issues-list" class="space-y-2"></ul>
-      </div>
-
-      <!-- Upgraded Conversion & Lead Capture Section -->
-      <div class="pt-8 border-t border-zinc-800 bg-zinc-950/80 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 p-6 sm:p-10 rounded-b-2xl border-t border-zinc-800">
-        <div class="flex flex-col sm:flex-row items-center gap-6 max-w-2xl mx-auto mb-6">
-          <img src="yash-avatar.png" alt="Yash Kaushik" class="w-16 h-16 rounded-full border border-zinc-700 object-cover flex-shrink-0" />
-          <div class="text-center sm:text-left">
-            <h3 class="text-base font-semibold text-white">Need a Senior Developer to fix these issues?</h3>
-            <p class="text-xs text-zinc-400 mt-1">Get direct engineering support from Yash (11+ yrs exp, Ex-eBay, Walmart, FlyDubai). Fixed scope with 24h turnarounds.</p>
-          </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <!-- Option A: Web3Forms Submission -->
-          <form action="https://api.web3forms.com/submit" method="POST" class="flex-1 flex gap-2">
-            <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE" />
-            <input type="hidden" name="scanned_url" id="hidden-scanned-url" value="" />
-            <input type="hidden" name="summary_data" id="hidden-summary-data" value="" />
-            
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="name@company.com" 
-              required 
-              class="flex-1 px-3.5 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-white font-mono"
-            />
-            <button 
-              type="submit" 
-              class="px-4 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold rounded-xl transition-all whitespace-nowrap"
+            <input
+              id="checkName"
+              name="name"
+              type="text"
+              autocomplete="name"
+              placeholder="Your name"
+              required
             >
-              Get Fix Plan
-            </button>
-          </form>
+          </div>
+
+          <div class="field">
+            <label for="checkEmail">
+              Email
+            </label>
+
+            <input
+              id="checkEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              required
+            >
+          </div>
+
         </div>
 
-        <div class="text-center mt-4">
-          <span class="text-xs text-zinc-500">Or prefer a 1:1 conversation? <a href="https://cal.com/mslabs" target="_blank" class="text-white hover:underline font-medium">Book a 15-min discovery call →</a></span>
+        <div class="field">
+          <label for="checkUrl">
+            Website URL
+          </label>
+
+          <input
+            id="checkUrl"
+            name="url"
+            type="text"
+            inputmode="url"
+            placeholder="example.com"
+            required
+          >
         </div>
+
+        <!-- Honeypot -->
+        <div
+          class="honeypot"
+          aria-hidden="true"
+        >
+          <label for="companyWebsite">
+            Company website
+          </label>
+
+          <input
+            id="companyWebsite"
+            name="company"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          >
+        </div>
+
+        <!-- Only required once Turnstile is configured -->
+        <div
+          class="cf-turnstile"
+          data-sitekey="YOUR_TURNSTILE_SITE_KEY"
+        ></div>
+
+        <button
+          type="submit"
+          class="button button-primary"
+        >
+          Check my website
+        </button>
+
+        <p
+          id="checkStatus"
+          class="form-status"
+          role="status"
+          aria-live="polite"
+        ></p>
+
+      </form>
+
+    </div>
+  </section>
+
+
+  <section
+    id="checkResults"
+    class="check-results"
+    hidden
+  >
+
+    <div class="container">
+
+      <div class="eyebrow">
+        YOUR WEBSITE SNAPSHOT
+      </div>
+
+      <h2>
+        Here's what we found.
+      </h2>
+
+      <div
+        id="scoreGrid"
+        class="score-grid"
+      ></div>
+
+      <div class="check-columns">
+
+        <div class="check-card">
+
+          <h3>
+            Core Web Vitals
+          </h3>
+
+          <div id="metricsList"></div>
+
+        </div>
+
+
+        <div class="check-card">
+
+          <h3>
+            Priority opportunities
+          </h3>
+
+          <div id="opportunitiesList"></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="check-card">
+
+        <h3>
+          Homepage links
+        </h3>
+
+        <div id="linksList"></div>
+
+      </div>
+
+
+      <div class="check-actions">
+
+        <a
+          href="/contact.html"
+          class="button button-primary"
+        >
+          Get help fixing this
+        </a>
+
+        <button
+          id="shareReport"
+          type="button"
+          class="button button-secondary"
+        >
+          Share report
+        </button>
+
       </div>
 
     </div>
-  </main>
+
+  </section>
+
+</main>
 
 <script>
   const WORKER_URL = "https://mslabs-proxy.yashkaushikbits19.workers.dev";
