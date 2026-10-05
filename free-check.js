@@ -261,55 +261,94 @@
     }
   }
 
-  /* ---------- business impact estimator ---------- */
-  function lcpInfo() {
-    var m = state.mobile;
-    if (!m) return null;
-    if (typeof m.fieldLcpMs === 'number') return { sec: m.fieldLcpMs / 1000, field: true };
-    var lab = m.metrics && m.metrics.lcp && m.metrics.lcp.value;
-    return typeof lab === 'number' ? { sec: lab / 1000, field: false } : null;
+ /* ---------- business impact estimator (ENHANCED) ---------- */
+function lcpInfo() {
+  var m = state.mobile;
+  if (!m) return null;
+  if (typeof m.fieldLcpMs === 'number') return { sec: m.fieldLcpMs / 1000, field: true };
+  var lab = m.metrics && m.metrics.lcp && m.metrics.lcp.value;
+  return typeof lab === 'number' ? { sec: lab / 1000, field: false } : null;
+}
+
+function fmtNum(n) { 
+  return n < 10 ? (Math.round(n * 10) / 10).toString() : Math.round(n).toLocaleString(); 
+}
+
+function fmtMoney(n) { 
+  // Uses browser locale for clean formatting
+  return '$' + Math.round(n).toLocaleString(); 
+}
+
+function renderImpact() {
+  var num = $('impact-lcp'), verdict = $('impact-verdict'), result = $('impact-result'), badge = $('impact-badge');
+  if (!num || !verdict || !result) return;
+
+  num.className = 'impact-num';
+  var info = lcpInfo();
+  
+  if (!info) {
+    if (badge) badge.hidden = true; 
+    result.textContent = '';
+    if (state.mobileError) { 
+      num.textContent = 'n/a'; 
+      verdict.textContent = state.mobileError; 
+    } else { 
+      num.textContent = '…'; 
+      verdict.textContent = 'Measuring your load time…'; 
+    }
+    return;
   }
 
-  function fmtNum(n) { return n < 10 ? (Math.round(n * 10) / 10).toString() : Math.round(n).toLocaleString(); }
-  function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
-
-  function renderImpact() {
-    var num = $('impact-lcp'), verdict = $('impact-verdict'), result = $('impact-result'), badge = $('impact-badge');
-    num.className = 'impact-num';
-    var info = lcpInfo();
-    if (!info) {
-      badge.hidden = true; result.textContent = '';
-      if (state.mobileError) { num.textContent = 'n/a'; verdict.textContent = state.mobileError; }
-      else { num.textContent = '…'; verdict.textContent = 'Measuring your load time…'; }
-      return;
-    }
-    num.textContent = info.sec.toFixed(1) + ' s';
-    num.classList.add(info.sec <= 2.5 ? 'good' : info.sec <= 4 ? 'ok' : 'poor');
+  num.textContent = info.sec.toFixed(1) + ' s';
+  num.classList.add(info.sec <= 2.5 ? 'good' : info.sec <= 4 ? 'ok' : 'poor');
+  
+  if (badge) {
     badge.hidden = false;
     badge.className = 'src-badge' + (info.field ? ' field' : '');
-    badge.textContent = info.field ? 'Based on real Chrome visitors' : 'Based on slow mobile simulation';
-
-    var delay = Math.max(0, info.sec - LCP_TARGET_S);
-    if (delay <= 0) {
-      verdict.textContent = 'Your main content appears within Google\'s 2.5 s target, so we don\'t estimate a speed penalty. Nice work.';
-      result.textContent = '';
-      return;
-    }
-    var rLow = Math.min(LOSS_PER_SEC_LOW * delay, LOSS_CAP), rHigh = Math.min(LOSS_PER_SEC_HIGH * delay, LOSS_CAP);
-    var pLow = Math.round(rLow * 100), pHigh = Math.round(rHigh * 100);
-    verdict.textContent = 'That is ' + delay.toFixed(1) + ' s past Google\'s 2.5 s target. Slow pages commonly lose roughly ' + pLow + '–' + pHigh + '% of conversions.';
-
-    var V = parseFloat($('imp-visitors').value), C = parseFloat($('imp-conv').value), D = parseFloat($('imp-value').value);
-    if (V > 0 && C > 0) {
-      var leads = V * C / 100, lo = leads * rLow, hi = leads * rHigh;
-      var txt = 'Roughly ' + fmtNum(lo) + '–' + fmtNum(hi) + ' leads lost per month';
-      if (D > 0) txt += ' (about ' + fmtMoney(lo * D) + '–' + fmtMoney(hi * D) + ' per month)';
-      result.textContent = txt + '.';
-    } else {
-      result.textContent = 'Add your visitors and conversion rate below for a monthly estimate.';
-    }
+    badge.textContent = info.field ? 'Based on real Chrome visitors' : 'Based on simulated mobile network';
   }
 
+  var delay = Math.max(0, info.sec - LCP_TARGET_S);
+  
+  if (delay <= 0) {
+    verdict.textContent = 'Your main content loads within Google\'s 2.5s benchmark. Excellent work—no speed penalty detected.';
+    result.textContent = 'Your site speed is actively supporting conversions rather than hurting them.';
+    return;
+  }
+
+  var rLow = Math.min(LOSS_PER_SEC_LOW * delay, LOSS_CAP);
+  var rHigh = Math.min(LOSS_PER_SEC_HIGH * delay, LOSS_CAP);
+  var pLow = Math.round(rLow * 100);
+  var pHigh = Math.round(rHigh * 100);
+
+  verdict.textContent = 'Your page is ' + delay.toFixed(1) + 's slower than Google\'s 2.5s benchmark. Slow load times can cause an estimated ' + pLow + '–' + pHigh + '% drop in conversions.';
+
+  // Industry benchmark fallback defaults (2,000 visitors, 2% conversion rate, $100 value)
+  var rawV = parseFloat($('imp-visitors') ? $('imp-visitors').value : '');
+  var rawC = parseFloat($('imp-conv') ? $('imp-conv').value : '');
+  var rawD = parseFloat($('imp-value') ? $('imp-value').value : '');
+
+  var V = !isNaN(rawV) && rawV > 0 ? rawV : 2000;
+  var C = !isNaN(rawC) && rawC > 0 ? rawC : 2.0;
+  var D = !isNaN(rawD) && rawD > 0 ? rawD : 100;
+
+  var isDefault = isNaN(rawV) || isNaN(rawC);
+
+  var leads = (V * C) / 100;
+  var lo = leads * rLow;
+  var hi = leads * rHigh;
+
+  var txt = 'Estimated Impact: Losing ~' + fmtNum(lo) + '–' + fmtNum(hi) + ' potential leads/sales per month';
+  if (D > 0) {
+    txt += ' (' + fmtMoney(lo * D) + '–' + fmtMoney(hi * D) + '/mo in lost revenue)';
+  }
+
+  if (isDefault) {
+    result.textContent = txt + ' (calculated using typical traffic defaults: 2k visitors at 2% conversion). Adjust the inputs below with your actual numbers:';
+  } else {
+    result.textContent = txt + ' based on your custom traffic numbers.';
+  }
+}
   /* ---------- filmstrip ---------- */
   function renderFilmstrip() {
     var wrap = $('filmstrip-wrap'), ol = $('filmstrip');
