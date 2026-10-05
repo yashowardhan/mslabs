@@ -1,43 +1,88 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senior Web Development &amp; WordPress Care | MS Labs Studio</title>
-<meta name="description" content="Senior WordPress care, custom web development, performance work and white-label engineering for businesses and digital agencies.">
+<title>Senior Web Developer, WordPress Care &amp; Free Website Audit | MS Labs</title>
+<meta name="description" content="Senior web developer for WordPress care, speed optimization and custom builds. Run a free 60-second website audit and get your top priority fixes.">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://mslabsstudio.com/">
 <meta name="theme-color" content="#101722">
+
 <meta property="og:type" content="website">
-<meta property="og:title" content="Senior Web Development &amp; WordPress Care | MS Labs Studio">
-<meta property="og:description" content="Senior WordPress care, custom web development, performance work and white-label engineering for businesses and digital agencies.">
+<meta property="og:site_name" content="MS Labs Studio">
+<meta property="og:title" content="Senior Web Developer, WordPress Care &amp; Free Website Audit | MS Labs">
+<meta property="og:description" content="Is your website losing leads? Run a free 60-second audit of mobile speed, WordPress bottlenecks and security headers, then fix it with a senior developer.">
 <meta property="og:url" content="https://mslabsstudio.com/">
 <meta property="og:image" content="https://mslabsstudio.com/og-image.png">
+<meta property="og:image:alt" content="MS Labs Studio: senior web development, WordPress care and a free website audit">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Senior Web Development &amp; WordPress Care | MS Labs Studio">
-<meta name="twitter:description" content="Senior WordPress care, custom web development, performance work and white-label engineering for businesses and digital agencies.">
+<meta name="twitter:title" content="Senior Web Developer, WordPress Care &amp; Free Website Audit | MS Labs">
+<meta name="twitter:description" content="Is your website losing leads? Run a free 60-second audit, then fix it with a senior developer.">
 <meta name="twitter:image" content="https://mslabsstudio.com/og-image.png">
+<meta name="twitter:image:alt" content="MS Labs Studio: senior web development, WordPress care and a free website audit">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101722'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='28' font-weight='700' text-anchor='middle' fill='%230F766E'%3EMS%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
+
+<style>
+/* Homepage additions: free audit lead magnet, nav pill, problem/funnel blocks, footer columns.
+   Move into styles.css once you are happy with it. */
+.nav-links .nav-audit{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap}
+.badge-free{display:inline-block;font-size:.65rem;font-weight:800;letter-spacing:.06em;line-height:1;padding:.22rem .4rem;border-radius:999px;background:#fff;color:#0F766E}
+.btn-primary .badge-free{background:#fff;color:#0F766E}
+.audit{background:#101722;color:#fff;padding:clamp(2.5rem,6vw,4.5rem) 0}
+.audit .eyebrow{color:#5eead4}
+.audit h2{color:#fff;margin:.25rem 0 .75rem;font-size:clamp(1.75rem,4vw,2.5rem);line-height:1.15}
+.audit-lead{max-width:44rem;margin:0 0 1.5rem;color:#cbd5e1;font-size:1.05rem;line-height:1.55}
+.audit-form{display:flex;gap:.75rem;flex-wrap:wrap;max-width:44rem}
+.audit-form input[type="url"],.audit-form input[type="text"]{flex:1 1 16rem;min-width:0;padding:.95rem 1rem;font:inherit;font-size:1rem;border:2px solid transparent;border-radius:10px;background:#fff;color:#101722}
+.audit-form input:focus{outline:none;border-color:#5eead4;box-shadow:0 0 0 3px rgba(94,234,212,.35)}
+.audit-form .btn{flex:0 0 auto;padding:.95rem 1.5rem;font-size:1rem;cursor:pointer}
+.audit-error{min-height:1.4em;margin:.6rem 0 0;color:#fca5a5;font-size:.95rem}
+.audit-points{list-style:none;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin:1.25rem 0 0;padding:0;color:#cbd5e1;font-size:.95rem}
+.audit-points li::before{content:"\2713";color:#5eead4;font-weight:700;margin-right:.45rem}
+.audit-fine{margin:1rem 0 0;color:#94a3b8;font-size:.85rem}
+.audit-fine a{color:#5eead4}
+.problem-list,.funnel{list-style:none;margin:0;padding:0}
+.funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;counter-reset:step}
+.funnel li{position:relative;padding:1.25rem 1.25rem 1.25rem 1.25rem;border:1px solid rgba(100,116,139,.35);border-radius:12px;counter-increment:step}
+.funnel li::before{content:counter(step);display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;margin-bottom:.6rem;border-radius:50%;background:#0F766E;color:#fff;font-weight:700}
+.funnel h3{margin:0 0 .4rem}
+.funnel p{margin:0}
+.funnel-cta{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+.footer-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1.5rem 2rem;margin-bottom:1.5rem}
+.footer-cols h2{margin:0 0 .6rem;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+.footer-cols ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem}
+@media (max-width:640px){.audit-form .btn{width:100%}.nav-links .nav-audit{justify-content:center}}
+</style>
+
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   "name": "MS Labs Studio",
   "url": "https://mslabsstudio.com/",
   "email": "contact@mslabsstudio.com",
-  "description": "Senior WordPress care, custom web development and white-label engineering for businesses and digital agencies.",
-  "areaServed": [
-    "United States",
-    "United Kingdom",
-    "Europe"
-  ],
-  "knowsAbout": [
-    "WordPress",
-    "React",
-    "Next.js",
-    "Core Web Vitals",
-    "Custom plugins"
+  "description": "Senior web developer for WordPress care, speed optimization, custom web development and white-label engineering, with a free website audit.",
+  "areaServed": ["United States", "United Kingdom", "Europe"],
+  "knowsAbout": ["WordPress", "WordPress speed optimization", "React", "Next.js", "Core Web Vitals", "Custom plugins", "Website audits"],
+  "makesOffer": [
+    {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "WordPress Care Plans"}},
+    {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Speed and Core Web Vitals Optimization"}},
+    {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Custom Web Development"}},
+    {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "White-label Agency Engineering"}}
   ]
+}</script>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Free Website Health Check",
+  "url": "https://mslabsstudio.com/free-check.html",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (web browser)",
+  "description": "A free website audit covering mobile load times, WordPress bottlenecks, security headers and top priority fixes.",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "publisher": {"@type": "Organization", "name": "MS Labs Studio", "url": "https://mslabsstudio.com/"}
 }</script>
 <script type="application/ld+json">{
   "@context": "https://schema.org",
@@ -45,18 +90,18 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What does the free site check include?",
+      "name": "What does the free website audit include?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "I review what is publicly visible and send three specific findings about speed, security or updates, with a short suggested fix for each. It is not a full audit."
+        "text": "The free audit looks at what is publicly visible on your site: mobile load times, WordPress bottlenecks, security headers and a short list of top priority fixes. It is a quick diagnostic, not a full audit."
       }
     },
     {
       "@type": "Question",
-      "name": "Why pay for the Site Health Check if the free check is available?",
+      "name": "Why pay for the Site Health Check if the free audit is available?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The free check gives three headline findings. The paid Site Health Check is a fuller written review with a prioritized fix list and practical recommendations."
+        "text": "The free audit gives you headline findings. The paid Site Health Check is a fuller written review with a prioritized fix list and practical recommendations."
       }
     },
     {
@@ -114,19 +159,21 @@
 <li><a href="index.html#work">Work</a></li>
 <li><a href="agency-partner.html">For agencies</a></li>
 <li><a href="index.html#about">About</a></li>
-<li><a class="btn btn-primary" href="index.html#contact" data-interest="check">Free site check</a></li>
+<li><a class="btn btn-primary nav-audit" href="/free-check.html">Free Site Audit <span class="badge-free">FREE</span></a></li>
+<li><a class="btn btn-ghost" href="index.html#contact" data-interest="project">Get in touch</a></li>
 </ul>
 </div>
 </header>
 <main id="main">
+
 <section class="hero" id="top">
 <div class="container hero-grid">
 <div>
-<p class="eyebrow">Senior engineering · WordPress · React / Next.js</p>
-<h1>Senior web development without another full-time hire.</h1>
-<p class="hero-lead">I help businesses keep WordPress sites healthy and help teams and agencies deliver web projects when they need experienced engineering capacity. You work directly with a senior developer — not a sales team or a rotating pool of freelancers.</p>
+<p class="eyebrow">Senior web developer · WordPress care · React / Next.js</p>
+<h1>Senior web development and WordPress care for sites that load fast and stay secure.</h1>
+<p class="hero-lead">I help businesses keep WordPress sites fast, secure and clean, and help teams and agencies deliver web projects when they need experienced engineering capacity. You work directly with a senior developer, not a sales team or a rotating pool of freelancers.</p>
 <div class="hero-actions">
-<a class="btn btn-primary" href="#contact" data-interest="check">Get a free site check</a>
+<a class="btn btn-primary" href="#free-audit">Run a free website audit →</a>
 <a class="btn btn-ghost" href="agency-partner.html">For agencies →</a>
 </div>
 <ul class="proof">
@@ -137,6 +184,7 @@
 </div>
 <aside class="report" aria-labelledby="report-title">
 <div class="report-head"><h2 id="report-title">A practical way to work</h2><span class="tag-sample">DIRECT</span></div>
+<div class="report-row"><div class="report-line"><span>Free website audit</span><span>$0</span></div></div>
 <div class="report-row"><div class="report-line"><span>WordPress care</span><span>$99–$399/mo</span></div></div>
 <div class="report-row"><div class="report-line"><span>One-time fixes</span><span>From $149</span></div></div>
 <div class="report-row"><div class="report-line"><span>Development</span><span>Quoted to scope</span></div></div>
@@ -147,20 +195,71 @@
 </div>
 </section>
 
-<section class="band band-alt" id="paths">
+<section class="audit" id="free-audit" aria-labelledby="audit-title">
+<div class="container">
+<p class="eyebrow">Free · No signup to start</p>
+<h2 id="audit-title">Is your website secretly losing leads?</h2>
+<p class="audit-lead">Get a free 60-second diagnostic report covering mobile load times, WordPress bottlenecks, security headers, and top priority fixes.</p>
+<form class="audit-form" id="audit-form" action="/free-check.html" method="get" novalidate>
+<label class="visually-hidden" for="audit-url" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Your website address</label>
+<input type="url" id="audit-url" name="url" placeholder="https://yourwebsite.com" required autocomplete="url" inputmode="url" aria-describedby="audit-error">
+<button class="btn btn-primary" type="submit">Run Free Audit →</button>
+</form>
+<p class="audit-error" id="audit-error" role="alert" aria-live="assertive"></p>
+<ul class="audit-points">
+<li>Mobile speed</li>
+<li>WordPress bottlenecks</li>
+<li>Security headers</li>
+<li>Prioritized fixes</li>
+</ul>
+<p class="audit-fine">The audit reads only what is publicly visible on your site. It is a quick diagnostic, not a full audit. <a href="privacy.html">Privacy Policy</a></p>
+</div>
+</section>
+
+<section class="band" id="problems">
+<div class="container">
+<div class="section-head"><p class="eyebrow">The problem</p><h2>A slow, bloated site costs you enquiries and sales.</h2><p>Most site owners do not find out until the leads quietly stop. These are the problems I see most often.</p></div>
+<ul class="cols3 problem-list">
+<li class="col"><h3>Slow mobile load times</h3><p>Heavy images, render-blocking scripts and layout shifts make visitors leave before they read a word.</p></li>
+<li class="col"><h3>Bloated plugins and themes</h3><p>Years of plugins stacked on a page builder slow every request and widen your security exposure.</p></li>
+<li class="col"><h3>Missed sales and enquiries</h3><p>Contact forms that land in spam, checkouts that stall and pages that never rank all cost you revenue.</p></li>
+<li class="col"><h3>Missing security basics</h3><p>Outdated updates, absent security headers and no tested backups turn small issues into emergencies.</p></li>
+<li class="col"><h3>No senior engineer on call</h3><p>Hiring in-house is expensive, and juggling freelancers means nobody owns the whole picture.</p></li>
+<li class="col"><h3>Patchwork inherited code</h3><p>Custom code nobody documented is hard to change and easy to break. It needs someone who can read it.</p></li>
+</ul>
+</div>
+</section>
+
+<section class="band band-alt" id="how-it-works">
+<div class="container">
+<div class="section-head"><p class="eyebrow">How it works</p><h2>Find the bottleneck first. Then fix it properly.</h2><p>Start with the free audit. Pay only if you want help acting on it.</p></div>
+<ol class="funnel">
+<li><h3>Run the free audit</h3><p>Enter your URL and get a 60-second diagnostic of speed, WordPress bottlenecks and security headers.</p></li>
+<li><h3>See your priority fixes</h3><p>The report highlights what matters most, so you know where the real bottleneck is before spending anything.</p></li>
+<li><h3>Fix it with a one-time sprint</h3><p>Have me handle the work as a fixed-price speed sprint, email fix or <a href="#fixes">Site Health Check</a>.</p></li>
+<li><h3>Keep it healthy with WordPress Care</h3><p>Stay fast and secure with <a href="#plans">monthly updates, backups, monitoring</a> and developer time included.</p></li>
+</ol>
+<div class="funnel-cta">
+<a class="btn btn-primary" href="#free-audit">Start with the free audit →</a>
+<a class="btn btn-ghost" href="#contact" data-interest="check" data-note="Walk me through my audit results">Want a walkthrough? Get in touch</a>
+</div>
+</div>
+</section>
+
+<section class="band" id="paths">
 <div class="container">
 <div class="section-head"><p class="eyebrow">Choose your path</p><h2>Different problems. One senior engineering partner.</h2><p>I work directly with site owners, businesses and digital agencies. Start with the service that matches the problem you are trying to solve.</p></div>
 <div class="cols3">
-<div class="col"><h3>Keep my WordPress site healthy</h3><p>Updates, backups, monitoring, performance and small fixes without hiring internally.</p><a class="btn btn-ghost" href="wordpress-care.html">Explore WordPress Care</a></div>
+<div class="col"><h3>Keep my WordPress site healthy</h3><p>Updates, backups, monitoring, speed optimization and small fixes without hiring internally.</p><a class="btn btn-ghost" href="wordpress-care.html">Explore WordPress Care</a></div>
 <div class="col"><h3>Build or fix something</h3><p>Custom plugins, integrations, performance work, React / Next.js and inherited codebases.</p><a class="btn btn-ghost" href="development.html">Explore Development</a></div>
 <div class="col"><h3>Extend my agency team</h3><p>White-label engineering and overflow capacity while you keep the client relationship.</p><a class="btn btn-ghost" href="agency-partner.html">Explore Agency Partner</a></div>
 </div>
 </div>
 </section>
 
-<section class="band" id="plans">
+<section class="band band-alt" id="plans">
 <div class="container">
-<div class="section-head"><p class="eyebrow">For businesses</p><h2>Keep your WordPress site healthy without hiring a developer.</h2><p>A developer looking after your site, not just an automated checklist. Custom-coded sites are welcome.</p></div>
+<div class="section-head"><p class="eyebrow">WordPress Care</p><h2>Keep your WordPress site fast, secure and updated without hiring a developer.</h2><p>A developer looking after your site, not just an automated checklist. Custom-coded sites are welcome.</p></div>
 <div class="plans">
 <article class="plan"><h3>Care Essential</h3><p class="plan-for">For brochure sites and blogs that need to stay updated and backed up.</p><p class="price">$99<small> /month</small></p><ul class="ticks"><li>Weekly core, theme and plugin updates, with a site check after each one</li><li>Daily off-site backups</li><li>Uptime monitoring and security scanning</li><li>Monthly health summary</li><li>Email support, 48-hour response</li></ul><a class="btn btn-ghost" href="#contact" data-interest="essential">Choose Essential</a></article>
 <article class="plan plan-recommended"><span class="badge">Recommended</span><h3>Care Plus</h3><p class="plan-for">For business sites that change often and need small fixes handled.</p><p class="price">$199<small> /month</small></p><ul class="ticks"><li>Everything in Essential</li><li>Staging site, so updates are tested before they go live</li><li>Monthly speed and Core Web Vitals check, with fixes</li><li>2 hours of developer time each month for small fixes and edits</li><li>Email support, 24-hour response</li></ul><a class="btn btn-primary" href="#contact" data-interest="plus">Choose Plus</a></article>
@@ -170,9 +269,9 @@
 </div>
 </section>
 
-<section class="band band-alt" id="fixes">
+<section class="band" id="fixes">
 <div class="container">
-<div class="section-head"><p class="eyebrow">One-time work</p><h2>Need a specialist fix without a retainer?</h2><p>Fixed-price starting points for common problems. Final scope and price are confirmed before work begins.</p></div>
+<div class="section-head"><p class="eyebrow">One-time sprints</p><h2>Speed optimization and specialist fixes, without a retainer.</h2><p>Fixed-price starting points for common problems. Final scope and price are confirmed before work begins.</p></div>
 <ul class="fixes">
 <li><h3>Site Health Check and Fix List</h3><p>A fuller written review of speed, security, updates, backups and basic SEO, with a prioritized plan.</p><span class="fix-price">from $149</span><a class="fix-link" href="#contact" data-interest="fix" data-note="Site Health Check and Fix List">Request this</a></li>
 <li><h3>Speed and Core Web Vitals sprint</h3><p>Targeted fixes for caching, images, scripts and layout shifts, with before-and-after measurements.</p><span class="fix-price">from $399</span><a class="fix-link" href="#contact" data-interest="fix" data-note="Speed and Core Web Vitals sprint">Request this</a></li>
@@ -180,13 +279,13 @@
 <li><h3>Hosting migration and staging setup</h3><p>Move your site with a planned cutover and minimal downtime, plus a staging copy for safe testing.</p><span class="fix-price">from $199</span><a class="fix-link" href="#contact" data-interest="fix" data-note="Hosting migration and staging setup">Request this</a></li>
 <li><h3>Accessibility quick scan</h3><p>A review against common WCAG issues, with a plain-language list of what to fix first.</p><span class="fix-price">from $349</span><a class="fix-link" href="#contact" data-interest="fix" data-note="Accessibility quick scan">Request this</a></li>
 </ul>
-<p class="fixes-note"><strong>Free vs paid:</strong> the free site check gives you three headline findings. The $149 Site Health Check is a fuller written audit with a prioritized fix plan.</p>
+<p class="fixes-note"><strong>Free vs paid:</strong> the <a href="/free-check.html">free website audit</a> gives you headline findings in about a minute. The $149 Site Health Check is a fuller written audit with a prioritized fix plan.</p>
 </div>
 </section>
 
-<section class="band" id="services">
+<section class="band band-alt" id="services">
 <div class="container">
-<div class="section-head"><p class="eyebrow">Development</p><h2>When the job needs a real developer.</h2><p>For work that falls outside routine maintenance, I scope the problem, agree the delivery and work directly in your codebase.</p></div>
+<div class="section-head"><p class="eyebrow">Development</p><h2>When the job needs a real senior developer.</h2><p>For work that falls outside routine maintenance, I scope the problem, agree the delivery and work directly in your codebase.</p></div>
 <div class="cols3">
 <div class="col"><h3>WordPress</h3><p>Custom functionality where off-the-shelf plugins are not enough.</p><ul class="dash"><li>Custom plugins and integrations</li><li>API and external-system connections</li><li>WooCommerce functionality</li><li>Inherited codebase fixes</li></ul></div>
 <div class="col"><h3>React / Next.js</h3><p>Production frontend engineering for modern web applications.</p><ul class="dash"><li>React and Next.js applications</li><li>TypeScript</li><li>Microfrontend architecture</li><li>Jest and Playwright testing</li></ul></div>
@@ -195,7 +294,7 @@
 </div>
 </section>
 
-<section class="band band-alt" id="work">
+<section class="band" id="work">
 <div class="container">
 <div class="section-head"><p class="eyebrow">Selected work</p><h2>Enterprise experience. Practical delivery.</h2><p>Named work where appropriate, with private client details kept confidential.</p></div>
 <div>
@@ -207,7 +306,7 @@
 </div>
 </section>
 
-<section class="band" id="about">
+<section class="band band-alt" id="about">
 <div class="container">
 <div class="about about-founder">
 <div class="avatar"><img src="yash-avatar.png" alt="Yash Kaushik, founder of MS Labs Studio" width="240" height="240" loading="lazy"></div>
@@ -217,18 +316,17 @@
 <p>I started MS Labs to bring that same senior engineering discipline to businesses and digital agencies that need reliable technical delivery without adding another full-time hire.</p>
 <p><strong>When you contact MS Labs, you talk directly to me.</strong></p>
 <p class="meta-note">Based in Gurgaon, India (IST). International projects are handled remotely with agreed working-hour overlap.</p>
-
 </div>
 </div>
 </div>
 </section>
 
-<section class="band band-alt" id="faq">
+<section class="band" id="faq">
 <div class="container">
 <div class="section-head"><p class="eyebrow">Before you start</p><h2>Questions</h2></div>
 <div class="faq">
-<details><summary>What does the free site check include?</summary><p>I review what is publicly visible and send three specific findings about speed, security or updates, with a short suggested fix for each. It is not a full audit.</p></details>
-<details><summary>Why pay for the Site Health Check if the free check is available?</summary><p>The free check gives three headline findings. The $149 Site Health Check is a fuller written review with a prioritized fix list and practical recommendations.</p></details>
+<details><summary>What does the free website audit include?</summary><p>The free audit looks at what is publicly visible on your site: mobile load times, WordPress bottlenecks, security headers and a short list of top priority fixes. It is a quick diagnostic, not a full audit. <a href="/free-check.html">Run it here</a>.</p></details>
+<details><summary>Why pay for the Site Health Check if the free audit is available?</summary><p>The free audit gives you headline findings. The $149 Site Health Check is a fuller written review with a prioritized fix list and practical recommendations.</p></details>
 <details><summary>How do you handle website access?</summary><p>I prefer named user accounts with the minimum access needed and two-factor authentication where available. I do not need your main password when your platform supports separate accounts. Access should be removed when it is no longer required.</p></details>
 <details><summary>Can you work with my current hosting and custom code?</summary><p>Yes. I can usually work with your existing host, theme, plugins and custom code. Access requirements depend on the task.</p></details>
 <details><summary>Do I have to sign a long contract?</summary><p>Care plans are month to month. Larger development projects are quoted separately with their own scope and terms.</p></details>
@@ -238,11 +336,11 @@
 </div>
 </section>
 
-<section class="band" id="contact">
+<section class="band band-alt" id="contact">
 <div class="container contact-grid">
 <div class="contact-info">
 <p class="eyebrow">Start with a small step</p><h2>Have a website or development problem?</h2>
-<p>For a WordPress site, send the URL and I’ll reply with three specific findings within 2 business days. For an agency or development project, send the brief and I’ll reply within 1 business day.</p>
+<p>For a quick read on a WordPress site, <a href="#free-audit">run the free audit</a> first. If you would like help with the results, an agency partnership or a development project, send a short brief and I’ll reply within 1 business day.</p>
 <ul class="contact-list"><li>Email: <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a></li><li>Location: Gurgaon, India · IST</li></ul>
 </div>
 <form class="contact-form" id="contact-form" novalidate>
@@ -250,7 +348,7 @@
 <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
 <div class="field"><label for="website">Website address</label><input id="website" name="website" type="url" placeholder="https://" autocomplete="url"></div>
 <div class="field"><label for="interest">What do you need?</label><select id="interest" name="interest">
-<option value="check">Free site check</option><option value="essential">Care Essential ($99/month)</option><option value="plus">Care Plus ($199/month)</option><option value="pro">Care Pro ($399/month)</option><option value="fix">A one-time fix</option><option value="agency">Working together as an agency</option><option value="project">A custom development project</option>
+<option value="check">Free site check or audit walkthrough</option><option value="essential">Care Essential ($99/month)</option><option value="plus">Care Plus ($199/month)</option><option value="pro">Care Pro ($399/month)</option><option value="fix">A one-time fix</option><option value="agency">Working together as an agency</option><option value="project">A custom development project</option>
 </select></div>
 <div class="field"><label for="message">Anything I should know?</label><textarea id="message" name="message"></textarea></div>
 <div class="hp"><label for="website-url-trap">Website URL (leave empty)<input id="website-url-trap" name="website_url_trap" type="text" tabindex="-1" autocomplete="off"></label></div>
@@ -261,18 +359,99 @@
 </div>
 </section>
 </main>
+
 <footer class="site-footer">
-<div class="container footer-inner">
-<p>&copy; <span id="year">2026</span> MS Labs Studio. <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a></p>
-<ul class="footer-links">
-<li><a href="wordpress-care.html">Care plans</a></li>
+<div class="container">
+<div class="footer-cols">
+<nav aria-labelledby="footer-services">
+<h2 id="footer-services">Services</h2>
+<ul>
+<li><a href="wordpress-care.html">WordPress Care plans</a></li>
 <li><a href="development.html">Development</a></li>
 <li><a href="agency-partner.html">For agencies</a></li>
+</ul>
+</nav>
+<nav aria-labelledby="footer-tools">
+<h2 id="footer-tools">Tools &amp; Resources</h2>
+<ul>
+<li><a href="/free-check.html">Free Website Health Check</a></li>
+<li><a href="/free-check.html">WordPress Speed Scanner</a></li>
+</ul>
+</nav>
+<nav aria-labelledby="footer-company">
+<h2 id="footer-company">Company</h2>
+<ul>
+<li><a href="index.html#about">About</a></li>
+<li><a href="index.html#contact">Contact</a></li>
 <li><a href="privacy.html">Privacy</a></li>
 <li><a href="terms.html">Terms</a></li>
 </ul>
+</nav>
+</div>
+<div class="footer-inner">
+<p>&copy; <span id="year">2026</span> MS Labs Studio. <a href="mailto:contact@mslabsstudio.com">contact@mslabsstudio.com</a></p>
+</div>
 </div>
 </footer>
+
 <script src="site.js"></script>
+<script>
+/* Inline audit widget: validate, normalise and hand off to /free-check.html?url=... */
+(function () {
+  var form = document.getElementById('audit-form');
+  if (!form) return;
+  var input = document.getElementById('audit-url');
+  var error = document.getElementById('audit-error');
+
+  function normalise(raw) {
+    var value = (raw || '').trim();
+    if (!value) return { error: 'Please enter your website address.' };
+    if (/\s/.test(value)) return { error: 'Website addresses cannot contain spaces.' };
+
+    // Accept "example.com" by assuming https; reject any non-web scheme (javascript:, data:, ftp: ...).
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
+      if (/^[a-z][a-z0-9+.-]*:/i.test(value) && !/^[^\/]+:\d+(\/|$)/.test(value)) {
+        return { error: 'Please enter a web address starting with http:// or https://.' };
+      }
+      value = 'https://' + value;
+    }
+
+    var parsed;
+    try { parsed = new URL(value); } catch (e) {
+      return { error: 'That does not look like a valid website address.' };
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return { error: 'Please enter a web address starting with http:// or https://.' };
+    }
+    // Require a real hostname with a dot (blocks "localhost", bare words) and no embedded credentials.
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(parsed.hostname.replace(/^xn--/i, 'xn--')) && !/^[\w.-]+\.[a-z\u00a1-\uffff]{2,}$/i.test(parsed.hostname)) {
+      return { error: 'Please enter a full domain such as yourwebsite.com.' };
+    }
+    parsed.username = '';
+    parsed.password = '';
+    parsed.hash = '';
+    return { url: parsed.toString() };
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    error.textContent = '';
+    var result = normalise(input.value);
+    if (result.error) {
+      error.textContent = result.error;
+      input.setAttribute('aria-invalid', 'true');
+      input.focus();
+      return;
+    }
+    input.removeAttribute('aria-invalid');
+    window.location.assign('/free-check.html?url=' + encodeURIComponent(result.url));
+  });
+
+  input.addEventListener('input', function () {
+    error.textContent = '';
+    input.removeAttribute('aria-invalid');
+  });
+})();
+</script>
 </body>
 </html>
